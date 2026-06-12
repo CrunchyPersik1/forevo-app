@@ -152,6 +152,9 @@ export default function ChatWindow({
             id: msg.senderId,
             displayName: msg.senderName,
             avatar: msg.senderAvatar,
+            nicknameColor: msg.senderNicknameColor,
+            isModerator: msg.senderIsModerator,
+            avatarEmoji: msg.senderAvatarEmoji,
           };
           return (
             <MessageBubble

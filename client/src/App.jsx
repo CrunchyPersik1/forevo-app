@@ -119,7 +119,7 @@ export default function App() {
     for (const [chatId, msgs] of chatMessagesRef.current) {
       const updated = msgs.map(m =>
         m.senderId === updatedUser.id
-          ? { ...m, senderName: updatedUser.displayName, senderAvatar: updatedUser.avatar }
+          ? { ...m, senderName: updatedUser.displayName, senderAvatar: updatedUser.avatar, senderNicknameColor: updatedUser.nicknameColor, senderIsModerator: updatedUser.isModerator, senderAvatarEmoji: updatedUser.avatarEmoji }
           : m
       );
       chatMessagesRef.current.set(chatId, updated);
