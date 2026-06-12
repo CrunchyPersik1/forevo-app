@@ -109,6 +109,18 @@ router.post('/:chatId', upload.array('files', 10), async (req, res) => {
       }
     }
 
+    if (chat?.type === 'direct' && !mentionUsernames.length) {
+      const members = await getChatMembers(chatId);
+      const other = members.find(m => m.id !== req.userId);
+      if (other) {
+        const otherUser = await db.get('SELECT last_seen FROM users WHERE id = $1', [other.id]);
+        if (otherUser?.last_seen && (Date.now() - otherUser.last_seen > 5 * 60 * 1000)) {
+          const { sendOfflineMessageEmail } = await import('../services/notifications.js');
+          sendOfflineMessageEmail(other.id, message.senderName, message.senderName, content?.trim().slice(0, 200));
+        }
+      }
+    }
+
     res.status(201).json(message);
   } catch (err) {
     console.error('POST /messages/:chatId error:', err);
