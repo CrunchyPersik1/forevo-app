@@ -63,6 +63,39 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
             </button>
           );
         })}
+
+        <a
+          href="https://t.me/ForevoM"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="chat-item pinned-item"
+        >
+          <div className="avatar" style={{ width: 48, height: 48, background: '#0088cc', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}>
+            ✈️
+          </div>
+          <div className="chat-item-info">
+            <div className="chat-item-top">
+              <span className="chat-item-name">Forevo Telegram</span>
+            </div>
+            <div className="chat-item-bottom">
+              <span className="chat-item-preview">@ForevoM — новости и обновления</span>
+            </div>
+          </div>
+        </a>
+
+        <div className="chat-item pinned-item crunchycorp-item">
+          <div className="avatar" style={{ width: 48, height: 48, background: 'linear-gradient(135deg, #ff6b6b, #ffa502)', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', color: '#fff' }}>
+            CC
+          </div>
+          <div className="chat-item-info">
+            <div className="chat-item-top">
+              <span className="chat-item-name">CrunchyCo</span>
+            </div>
+            <div className="chat-item-bottom">
+              <span className="chat-item-preview">© 2026 CrunchyCo. Все права защищены.</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

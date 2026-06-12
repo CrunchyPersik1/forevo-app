@@ -153,6 +153,22 @@
   font-weight: 500;
 }
 
+.pinned-item {
+  border-top: 1px solid var(--border);
+  opacity: 0.85;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.pinned-item:hover {
+  opacity: 1;
+  background: var(--bg-hover, rgba(255,255,255,0.05));
+}
+.crunchycorp-item {
+  cursor: default;
+  opacity: 0.6;
+}
+
 .chat-item {
   display: flex;
   align-items: center;
