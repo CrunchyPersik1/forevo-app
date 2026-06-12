@@ -38,18 +38,6 @@ const db = {
 
 async function initDB() {
   await pool.query(`
-    DROP TABLE IF EXISTS pinned_messages CASCADE;
-    DROP TABLE IF EXISTS group_admins CASCADE;
-    DROP TABLE IF EXISTS user_blocks CASCADE;
-    DROP TABLE IF EXISTS message_reactions CASCADE;
-    DROP TABLE IF EXISTS attachments CASCADE;
-    DROP TABLE IF EXISTS messages CASCADE;
-    DROP TABLE IF EXISTS chat_members CASCADE;
-    DROP TABLE IF EXISTS chats CASCADE;
-    DROP TABLE IF EXISTS users CASCADE;
-  `);
-
-  await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
@@ -141,6 +129,21 @@ async function initDB() {
   await pool.query('CREATE INDEX IF NOT EXISTS idx_messages_chat ON messages(chat_id, created_at)');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_chat_members_user ON chat_members(user_id)');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)');
+
+  const userCols = await pool.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'users'`);
+  const userColNames = userCols.rows.map(r => r.column_name);
+  if (!userColNames.includes('email_notifications')) {
+    await pool.query('ALTER TABLE users ADD COLUMN email_notifications BOOLEAN DEFAULT true');
+  }
+
+  const msgCols = await pool.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'messages'`);
+  const msgColNames = msgCols.rows.map(r => r.column_name);
+  if (!msgColNames.includes('forwarded_from_chat_id')) {
+    await pool.query('ALTER TABLE messages ADD COLUMN forwarded_from_chat_id TEXT REFERENCES chats(id)');
+  }
+  if (!msgColNames.includes('mentions')) {
+    await pool.query(`ALTER TABLE messages ADD COLUMN mentions TEXT[] DEFAULT '{}'`);
+  }
 
   console.log('[DB] PostgreSQL tables initialized');
 }
