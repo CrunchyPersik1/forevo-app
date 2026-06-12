@@ -7,7 +7,7 @@ const REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🔥'];
 
 export default function MessageBubble({
   message, isOwn, onReply, onEdit, onDelete, onReact, onForward, onPin, isPinned,
-  showSender, senderUser, onOpenProfile,
+  showSender, showColoredName, senderUser, onOpenProfile,
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -56,7 +56,7 @@ export default function MessageBubble({
         />
       )}
       <div className="msg-content-col">
-        {showSender && !isOwn && (
+        {(showSender || showColoredName) && !isOwn && (
           <button
             className={`msg-sender ${senderUser?.nicknameColor === 'rainbow' ? 'nickname-rainbow' : senderUser?.nicknameColor === 'gradient' ? 'nickname-gradient' : ''}`}
             style={senderUser?.nicknameColor && senderUser.nicknameColor !== 'rainbow' && senderUser.nicknameColor !== 'gradient' ? { color: senderUser.nicknameColor } : undefined}

@@ -148,6 +148,8 @@ export default function ChatWindow({
           const prev = messages[i - 1];
           const showSender = chat.type === 'group' && msg.senderId !== user.id &&
             (!prev || prev.senderId !== msg.senderId || prev.type === 'system');
+          const showColoredName = chat.type === 'direct' && msg.senderId !== user.id &&
+            (!prev || prev.senderId !== msg.senderId || prev.type === 'system');
           const sender = chat.members.find(m => m.id === msg.senderId) || {
             id: msg.senderId,
             displayName: msg.senderName,
@@ -162,6 +164,7 @@ export default function ChatWindow({
               message={msg}
               isOwn={msg.senderId === user.id}
               showSender={showSender}
+              showColoredName={showColoredName}
               senderUser={sender}
               isPinned={pinnedIds.has(msg.id)}
               onReply={setReplyTo}
