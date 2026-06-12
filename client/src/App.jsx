@@ -416,6 +416,7 @@ export default function App() {
   const handleProfileSave = async (updated, opts = {}) => {
     setUser(updated);
     updateUserInState(updated);
+    await loadChats();
     if (!opts.silent) setShowProfile(false);
   };
 
