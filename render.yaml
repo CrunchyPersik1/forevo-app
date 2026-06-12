@@ -2,7 +2,7 @@ services:
   - type: web
     name: forevo
     runtime: node
-    buildCommand: npm install && cd server && npm install && cd ../client && npm install && npx vite build
+    buildCommand: npm install && cd server && npm install && cd ../client && npm install --include=dev && npx vite build
     startCommand: cd server && npm start
     envVars:
       - key: NODE_ENV
