@@ -6,7 +6,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "npm install && cd server && npm install && cd ../client && npm install && npm run build",
+    "build": "npm install && cd server && npm install && cd ../client && npm install && npx vite build",
     "start": "cd server && npm start",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
