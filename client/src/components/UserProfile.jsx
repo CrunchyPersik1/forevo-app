@@ -90,7 +90,13 @@ export default function UserProfile({
 
         <div className="profile-avatar-section">
           <Avatar user={profile} size={96} online={isOnline} lazy={false} />
-          <h3>{profile.displayName}</h3>
+          <h3
+            className={profile.nicknameColor === 'rainbow' ? 'nickname-rainbow' : profile.nicknameColor === 'gradient' ? 'nickname-gradient' : ''}
+            style={profile.nicknameColor && profile.nicknameColor !== 'rainbow' && profile.nicknameColor !== 'gradient' ? { color: profile.nicknameColor } : undefined}
+          >
+            {profile.isModerator && <span className="mod-badge">⭐</span>}
+            {profile.displayName}
+          </h3>
           <p>@{profile.username}</p>
           <p className="profile-status">
             {isOnline ? 'в сети' : formatLastSeen(profile.lastSeen)}

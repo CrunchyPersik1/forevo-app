@@ -49,7 +49,12 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
               <Avatar user={{ id: chat.id, displayName: chat.name, avatar: chat.avatar }} online={isOnline} />
               <div className="chat-item-info">
                 <div className="chat-item-top">
-                  <span className="chat-item-name">{chat.name}</span>
+                  <span
+                    className={`chat-item-name ${other?.nicknameColor === 'rainbow' ? 'nickname-rainbow' : other?.nicknameColor === 'gradient' ? 'nickname-gradient' : ''}`}
+                    style={other?.nicknameColor && other.nicknameColor !== 'rainbow' && other.nicknameColor !== 'gradient' ? { color: other.nicknameColor } : undefined}
+                  >
+                    {other?.isModerator && '⭐ '}{chat.name}
+                  </span>
                   {chat.lastMessage && (
                     <span className="chat-item-time">{formatTime(chat.lastMessage.createdAt)}</span>
                   )}
