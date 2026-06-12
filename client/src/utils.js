@@ -11,11 +11,14 @@ export function validateUsername(username) {
 
 export function formatRegistrationDate(ts) {
   if (!ts) return '';
-  return new Date(ts).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+  const d = new Date(Number(ts));
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
 }
 
 export function formatTime(ts) {
-  const d = new Date(ts);
+  const d = new Date(Number(ts));
+  if (isNaN(d.getTime())) return '';
   const now = new Date();
   const isToday = d.toDateString() === now.toDateString();
   if (isToday) return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
