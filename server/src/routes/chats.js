@@ -108,6 +108,12 @@ async function formatMessage(row, seen = new Set()) {
     if (reply) replyTo = await formatMessage(reply, seen);
   }
 
+  let forwardedFrom = null;
+  if (row.forwarded_from_chat_id) {
+    const origChat = await db.get('SELECT name, type FROM chats WHERE id = $1', [row.forwarded_from_chat_id]);
+    if (origChat) forwardedFrom = origChat.name || (origChat.type === 'direct' ? 'Личный чат' : 'Группа');
+  }
+
   return {
     id: row.id,
     chatId: row.chat_id,
@@ -118,6 +124,8 @@ async function formatMessage(row, seen = new Set()) {
     type: row.type,
     replyToId: row.reply_to_id,
     replyTo,
+    forwardedFrom,
+    mentions: row.mentions || [],
     editedAt: row.edited_at,
     deletedAt: row.deleted_at,
     createdAt: row.created_at,
@@ -148,6 +156,19 @@ async function formatChat(chat, userId) {
 
   const admins = chat.type === 'group' ? await getGroupAdmins(chat.id) : [];
 
+  let pinnedMessage = null;
+  const pinned = await db.get(
+    'SELECT message_id FROM pinned_messages WHERE chat_id = $1 ORDER BY pinned_at DESC LIMIT 1',
+    [chat.id]
+  );
+  if (pinned) {
+    const pinRow = await db.get(`
+      SELECT m.*, u.display_name as sender_name, u.avatar as sender_avatar FROM messages m
+      LEFT JOIN users u ON u.id = m.sender_id WHERE m.id = $1
+    `, [pinned.message_id]);
+    if (pinRow) pinnedMessage = await formatMessage(pinRow);
+  }
+
   return {
     id: chat.id,
     type: chat.type,
@@ -160,6 +181,7 @@ async function formatChat(chat, userId) {
     members,
     lastMessage: await getLastMessage(chat.id, userId),
     unreadCount: await getUnreadCount(chat.id, userId),
+    pinnedMessage,
     createdAt: chat.created_at,
     isAdmin: chat.type === 'group' ? await isGroupAdmin(chat.id, userId) : false,
     isCreator: chat.type === 'group' ? await isGroupCreator(chat.id, userId) : false,

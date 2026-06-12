@@ -38,6 +38,7 @@ const db = {
 
 async function initDB() {
   await pool.query(`
+    DROP TABLE IF EXISTS pinned_messages CASCADE;
     DROP TABLE IF EXISTS group_admins CASCADE;
     DROP TABLE IF EXISTS user_blocks CASCADE;
     DROP TABLE IF EXISTS message_reactions CASCADE;
@@ -60,7 +61,8 @@ async function initDB() {
       last_seen BIGINT,
       created_at BIGINT NOT NULL,
       username_updated_at BIGINT,
-      last_avatar_update BIGINT
+      last_avatar_update BIGINT,
+      email_notifications BOOLEAN DEFAULT true
     );
 
     CREATE TABLE IF NOT EXISTS chats (
@@ -89,6 +91,8 @@ async function initDB() {
       content TEXT,
       type TEXT NOT NULL DEFAULT 'text' CHECK(type IN ('text', 'image', 'file', 'voice', 'system')),
       reply_to_id TEXT REFERENCES messages(id),
+      forwarded_from_chat_id TEXT REFERENCES chats(id),
+      mentions TEXT[] DEFAULT '{}',
       edited_at BIGINT,
       deleted_at BIGINT,
       created_at BIGINT NOT NULL
@@ -123,6 +127,14 @@ async function initDB() {
       user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       created_at BIGINT NOT NULL,
       PRIMARY KEY (chat_id, user_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS pinned_messages (
+      chat_id TEXT NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
+      message_id TEXT NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+      pinned_by TEXT REFERENCES users(id),
+      pinned_at BIGINT NOT NULL,
+      PRIMARY KEY (chat_id, message_id)
     );
   `);
 

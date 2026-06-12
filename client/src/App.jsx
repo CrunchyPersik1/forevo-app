@@ -9,6 +9,7 @@ import CreateGroup from './components/CreateGroup';
 import Profile from './components/Profile';
 import UserProfile from './components/UserProfile';
 import GroupSettings from './components/GroupSettings';
+import ForwardModal from './components/ForwardModal';
 import './App.css';
 
 function applyUserToChats(chats, updatedUser, myId) {
@@ -38,6 +39,8 @@ export default function App() {
   const [showGroupSettings, setShowGroupSettings] = useState(false);
   const [mobileShowChat, setMobileShowChat] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState(() => localStorage.getItem('forevo-theme') || 'dark');
+  const [forwardingMessage, setForwardingMessage] = useState(null);
 
   const chatMessagesRef = useRef(new Map());
   const [displayMessages, setDisplayMessages] = useState([]);
@@ -48,6 +51,19 @@ export default function App() {
 
   const userRef = useRef(null);
   userRef.current = user;
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('forevo-theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
 
   const refreshDisplay = useCallback((chatId) => {
     if (activeChatIdRef.current === chatId) {
@@ -207,6 +223,22 @@ export default function App() {
       });
     };
 
+    const onMessagePin = ({ chatId, message }) => {
+      setChats(prev => prev.map(c => c.id === chatId ? { ...c, pinnedMessage: message } : c));
+      setActiveChat(prev => prev?.id === chatId ? { ...prev, pinnedMessage: message } : prev);
+    };
+
+    const onMessageUnpin = ({ chatId }) => {
+      setChats(prev => prev.map(c => c.id === chatId ? { ...c, pinnedMessage: null } : c));
+      setActiveChat(prev => prev?.id === chatId ? { ...prev, pinnedMessage: null } : prev);
+    };
+
+    const onMentionReceived = ({ chatId, messageId, fromUser, content }) => {
+      if (Notification.permission === 'granted') {
+        new Notification(`${fromUser} упомянул(а) вас`, { body: content, icon: '/favicon.ico' });
+      }
+    };
+
     const onTypingStart = ({ chatId, userId }) => {
       if (chatId === activeChatIdRef.current) {
         setTypingUsers(prev => prev.includes(userId) ? prev : [...prev, userId]);
@@ -229,6 +261,9 @@ export default function App() {
     socket.on('chat:updated', onChatUpdated);
     socket.on('chat:new', onChatNew);
     socket.on('chat:removed', onChatRemoved);
+    socket.on('message:pin', onMessagePin);
+    socket.on('message:unpin', onMessageUnpin);
+    socket.on('mention:received', onMentionReceived);
     socket.on('typing:start', onTypingStart);
     socket.on('typing:stop', onTypingStop);
 
@@ -243,6 +278,9 @@ export default function App() {
       socket.off('chat:updated', onChatUpdated);
       socket.off('chat:new', onChatNew);
       socket.off('chat:removed', onChatRemoved);
+      socket.off('message:pin', onMessagePin);
+      socket.off('message:unpin', onMessageUnpin);
+      socket.off('mention:received', onMentionReceived);
       socket.off('typing:start', onTypingStart);
       socket.off('typing:stop', onTypingStop);
       disconnectSocket();
@@ -340,6 +378,34 @@ export default function App() {
     } catch {}
   };
 
+  const handleForward = (message) => {
+    setForwardingMessage(message);
+  };
+
+  const handleForwardToChat = async (targetChat) => {
+    if (!forwardingMessage) return;
+    try {
+      await api.forwardMessage(forwardingMessage.id, targetChat.id);
+      setForwardingMessage(null);
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  const handlePin = async (message) => {
+    if (!activeChat) return;
+    const isPinned = activeChat.pinnedMessage?.id === message.id;
+    try {
+      if (isPinned) {
+        await api.unpinMessage(message.id);
+      } else {
+        await api.pinMessage(message.id);
+      }
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
   const handleProfileSave = async (updated, opts = {}) => {
     setUser(updated);
     updateUserInState(updated);
@@ -396,6 +462,8 @@ export default function App() {
           onNewChat={() => setShowSearch(true)}
           onNewGroup={() => setShowGroup(true)}
           onProfile={() => setShowProfile(true)}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
       </div>
 
@@ -420,6 +488,8 @@ export default function App() {
             refreshDisplay(chatId);
           })}
           onReact={(id, emoji) => api.reactMessage(id, emoji)}
+          onForward={handleForward}
+          onPin={handlePin}
           onBack={() => setMobileShowChat(false)}
           onMarkRead={handleMarkRead}
           onOpenProfile={setViewProfileId}
@@ -490,6 +560,14 @@ export default function App() {
               setDisplayMessages([]);
             }
           }}
+        />
+      )}
+      {forwardingMessage && (
+        <ForwardModal
+          chats={chats}
+          user={user}
+          onSelect={handleForwardToChat}
+          onClose={() => setForwardingMessage(null)}
         />
       )}
     </div>

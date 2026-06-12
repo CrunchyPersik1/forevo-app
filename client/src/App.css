@@ -731,6 +731,101 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Mentions */
+.mention {
+  color: var(--accent);
+  font-weight: 600;
+  background: var(--accent-glow);
+  padding: 1px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.mention-dropdown {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin: 0 12px 4px;
+  overflow: hidden;
+}
+.mention-item {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 13px;
+}
+.mention-item:hover, .mention-item.active {
+  background: var(--bg-hover);
+}
+.mention-name { color: var(--text-primary); font-weight: 500; }
+.mention-username { color: var(--text-secondary); }
+
+/* Forwarded */
+.msg-forwarded {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  font-style: italic;
+}
+
+/* Pinned */
+.pinned-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 13px;
+}
+.pinned-banner:hover { background: var(--bg-hover); }
+.pinned-icon { font-size: 16px; }
+.pinned-info { display: flex; flex-direction: column; min-width: 0; }
+.pinned-label { font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.pinned-text { color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msg-bubble.pinned { position: relative; }
+.msg-pin-icon { position: absolute; top: -8px; right: -4px; font-size: 12px; }
+
+/* Toggle row */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+.toggle-row input[type="checkbox"] {
+  width: 40px;
+  height: 22px;
+  appearance: none;
+  background: var(--bg-tertiary);
+  border-radius: 11px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  border: 1px solid var(--border);
+}
+.toggle-row input[type="checkbox"]::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--text-secondary);
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+.toggle-row input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.toggle-row input[type="checkbox"]:checked::after {
+  left: 20px;
+  background: white;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .sidebar { width: 100%; min-width: 100%; }

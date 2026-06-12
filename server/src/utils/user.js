@@ -29,6 +29,7 @@ export function publicUser(row, extras = {}) {
     lastSeen: row.last_seen,
     createdAt: row.created_at,
     usernameUpdatedAt: row.username_updated_at ?? null,
+    emailNotifications: row.email_notifications ?? true,
     ...extras,
   };
 }

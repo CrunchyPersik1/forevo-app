@@ -1,14 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply }) {
+export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply, members }) {
   const [text, setText] = useState('');
   const [recording, setRecording] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState(null);
+  const [mentionIndex, setMentionIndex] = useState(0);
   const fileRef = useRef(null);
   const mediaRef = useRef(null);
   const recorderRef = useRef(null);
   const streamRef = useRef(null);
   const chunksRef = useRef([]);
   const typingTimer = useRef(null);
+  const textareaRef = useRef(null);
 
   useEffect(() => () => {
     if (typingTimer.current) clearTimeout(typingTimer.current);
@@ -27,6 +30,34 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply 
     typingTimer.current = setTimeout(() => onTyping(false), 2000);
   };
 
+  const mentionResults = mentionQuery !== null && members?.length
+    ? members.filter(m => m.username.toLowerCase().includes(mentionQuery.toLowerCase())).slice(0, 5)
+    : [];
+
+  const insertMention = (username) => {
+    const before = text.slice(0, text.lastIndexOf('@'));
+    setText(before + '@' + username + ' ');
+    setMentionQuery(null);
+    setMentionIndex(0);
+    textareaRef.current?.focus();
+  };
+
+  const handleChange = (e) => {
+    const val = e.target.value;
+    setText(val);
+    handleTyping();
+
+    const cursorPos = e.target.selectionStart;
+    const textBefore = val.slice(0, cursorPos);
+    const atMatch = textBefore.match(/@(\w*)$/);
+    if (atMatch && members?.length) {
+      setMentionQuery(atMatch[1]);
+      setMentionIndex(0);
+    } else {
+      setMentionQuery(null);
+    }
+  };
+
   const handleSend = async () => {
     if (!text.trim()) return;
     onTyping(false);
@@ -34,6 +65,7 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply 
     try {
       await onSend({ content: text.trim(), replyToId: replyTo?.id });
       setText('');
+      setMentionQuery(null);
       onCancelReply();
     } catch {}
   };
@@ -49,6 +81,7 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply 
         await onSend(fd);
       }
       setText('');
+      setMentionQuery(null);
       onCancelReply();
     } catch {}
   };
@@ -86,6 +119,16 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply 
     setRecording(false);
   };
 
+  const handleKeyDown = (e) => {
+    if (mentionResults.length > 0) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); setMentionIndex(i => (i + 1) % mentionResults.length); return; }
+      if (e.key === 'ArrowUp') { e.preventDefault(); setMentionIndex(i => (i - 1 + mentionResults.length) % mentionResults.length); return; }
+      if (e.key === 'Tab' || e.key === 'Enter') { e.preventDefault(); insertMention(mentionResults[mentionIndex].username); return; }
+      if (e.key === 'Escape') { setMentionQuery(null); return; }
+    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  };
+
   return (
     <div className="msg-input-area">
       {replyTo && (
@@ -98,6 +141,18 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply 
         </div>
       )}
 
+      {mentionResults.length > 0 && (
+        <div className="mention-dropdown">
+          {mentionResults.map((m, i) => (
+            <button key={m.id} className={`mention-item ${i === mentionIndex ? 'active' : ''}`}
+              onMouseDown={(e) => { e.preventDefault(); insertMention(m.username); }}>
+              <span className="mention-name">{m.displayName}</span>
+              <span className="mention-username">@{m.username}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="msg-input">
         <button className="icon-btn" onClick={() => fileRef.current?.click()} title="Файл">📎</button>
         <input ref={fileRef} type="file" hidden multiple onChange={e => handleFiles(e.target.files)} />
@@ -106,13 +161,12 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply 
         <input ref={mediaRef} type="file" hidden accept="image/*" onChange={e => handleFiles(e.target.files)} />
 
         <textarea
+          ref={textareaRef}
           placeholder="Сообщение..."
           value={text}
           rows={1}
-          onChange={e => { setText(e.target.value); handleTyping(); }}
-          onKeyDown={e => {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-          }}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
         />
 
         {text.trim() ? (

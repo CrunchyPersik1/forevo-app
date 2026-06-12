@@ -67,4 +67,8 @@ export const api = {
   leaveGroup: (chatId) => request(`/chats/${chatId}/leave`, { method: 'POST' }),
   deleteGroup: (chatId) => request(`/chats/${chatId}`, { method: 'DELETE' }),
   clearHistory: (chatId) => request(`/chats/${chatId}/history`, { method: 'DELETE' }),
+  forwardMessage: (messageId, chatId) => request(`/messages/${messageId}/forward`, { method: 'POST', body: JSON.stringify({ chatId }) }),
+  pinMessage: (messageId) => request(`/messages/${messageId}/pin`, { method: 'POST' }),
+  unpinMessage: (messageId) => request(`/messages/${messageId}/pin`, { method: 'DELETE' }),
+  updateNotifications: (emailNotifications) => request('/users/me/notifications', { method: 'PATCH', body: JSON.stringify({ emailNotifications }) }),
 };

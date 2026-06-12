@@ -5,7 +5,8 @@ import { formatTime, formatFileSize } from '../utils';
 const REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🔥'];
 
 export default function MessageBubble({
-  message, isOwn, onReply, onEdit, onDelete, onReact, showSender, senderUser, onOpenProfile,
+  message, isOwn, onReply, onEdit, onDelete, onReact, onForward, onPin, isPinned,
+  showSender, senderUser, onOpenProfile,
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -24,6 +25,17 @@ export default function MessageBubble({
       await onEdit(message.id, editText.trim());
     }
     setEditing(false);
+  };
+
+  const renderContent = (text) => {
+    if (!text) return null;
+    const parts = text.split(/(@\w+)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('@')) {
+        return <span key={i} className="mention">{part}</span>;
+      }
+      return part;
+    });
   };
 
   const avatarUser = senderUser || {
@@ -49,6 +61,12 @@ export default function MessageBubble({
           </button>
         )}
 
+        {message.forwardedFrom && (
+          <div className="msg-forwarded">
+            <span>↪ Переслано из {message.forwardedFrom}</span>
+          </div>
+        )}
+
         {message.replyTo && (
           <div className="msg-reply">
             <span className="msg-reply-name">{message.replyTo.senderName}</span>
@@ -58,7 +76,8 @@ export default function MessageBubble({
           </div>
         )}
 
-        <div className={`msg-bubble ${isOwn ? 'own' : ''} ${message.deletedAt ? 'deleted' : ''}`}>
+        <div className={`msg-bubble ${isOwn ? 'own' : ''} ${message.deletedAt ? 'deleted' : ''} ${isPinned ? 'pinned' : ''}`}>
+          {isPinned && <span className="msg-pin-icon">📌</span>}
           {message.deletedAt ? (
             <span className="msg-deleted">Сообщение удалено</span>
           ) : editing ? (
@@ -71,7 +90,7 @@ export default function MessageBubble({
             </div>
           ) : (
             <>
-              {message.type === 'text' && <p className="msg-text">{message.content}</p>}
+              {message.type === 'text' && <p className="msg-text">{renderContent(message.content)}</p>}
               {message.type === 'image' && message.attachments?.map(a => (
                 <img key={a.id} src={a.url} alt="" className="msg-image" loading="lazy" />
               ))}
@@ -88,7 +107,7 @@ export default function MessageBubble({
                 </a>
               ))}
               {message.content && message.type !== 'text' && (
-                <p className="msg-text">{message.content}</p>
+                <p className="msg-text">{renderContent(message.content)}</p>
               )}
             </>
           )}
@@ -119,6 +138,12 @@ export default function MessageBubble({
               <button onClick={() => { onOpenProfile(message.senderId); setShowMenu(false); }}>👤 Профиль</button>
             )}
             <button onClick={() => { onReply(message); setShowMenu(false); }}>↩️ Ответить</button>
+            <button onClick={() => { onForward?.(message); setShowMenu(false); }}>↪️ Переслать</button>
+            {onPin && (
+              <button onClick={() => { onPin(message); setShowMenu(false); }}>
+                {isPinned ? '📌 Открепить' : '📌 Закрепить'}
+              </button>
+            )}
             {REACTIONS.map(e => (
               <button key={e} onClick={() => { onReact(message.id, e); setShowMenu(false); }}>{e}</button>
             ))}

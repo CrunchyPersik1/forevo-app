@@ -144,6 +144,13 @@ router.delete('/me/avatar', async (req, res) => {
   res.json(publicUser(updated));
 });
 
+router.patch('/me/notifications', async (req, res) => {
+  const { emailNotifications } = req.body;
+  await db.run('UPDATE users SET email_notifications = $1 WHERE id = $2', [!!emailNotifications, req.userId]);
+  const updated = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
+  res.json(publicUser(updated));
+});
+
 router.get('/search', async (req, res) => {
   const q = (req.query.q || '').trim().toLowerCase();
   if (!q) return res.json([]);

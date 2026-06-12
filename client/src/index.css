@@ -26,6 +26,26 @@
   --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f7;
+  --bg-tertiary: #e8e8ed;
+  --bg-hover: #d1d1d6;
+  --bg-active: #c7c7cc;
+  --accent: #6c5ce7;
+  --accent-hover: #5a4bd6;
+  --accent-glow: rgba(108, 92, 231, 0.15);
+  --text-primary: #1a1a1a;
+  --text-secondary: #6e6e73;
+  --text-muted: #aeaeb2;
+  --border: #d1d1d6;
+  --success: #00a86b;
+  --danger: #e53e3e;
+  --msg-out: #6c5ce7;
+  --msg-in: #e8e8ed;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
 html, body, #root {
   height: 100%;
   overflow: hidden;

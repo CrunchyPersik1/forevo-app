@@ -6,7 +6,7 @@ import { formatLastSeen } from '../utils';
 
 export default function ChatWindow({
   chat, user, messages, onlineUsers, typingUsers,
-  onSend, onEdit, onDelete, onReact, onBack, onMarkRead,
+  onSend, onEdit, onDelete, onReact, onForward, onPin, onBack, onMarkRead,
   onOpenProfile, onOpenGroupSettings, onClearHistory, onLoadMore,
 }) {
   const bottomRef = useRef(null);
@@ -88,6 +88,9 @@ export default function ChatWindow({
     await onClearHistory?.(chat.id);
   };
 
+  const pinnedIds = new Set();
+  if (chat.pinnedMessage) pinnedIds.add(chat.pinnedMessage.id);
+
   return (
     <div className="chat-window">
       <div className="chat-header">
@@ -114,6 +117,23 @@ export default function ChatWindow({
         )}
       </div>
 
+      {chat.pinnedMessage && (
+        <div className="pinned-banner" onClick={() => {
+          const el = containerRef.current;
+          const idx = messages.findIndex(m => m.id === chat.pinnedMessage.id);
+          if (idx >= 0 && el) {
+            const itemH = 80;
+            el.scrollTop = idx * itemH;
+          }
+        }}>
+          <span className="pinned-icon">📌</span>
+          <div className="pinned-info">
+            <span className="pinned-label">Закреплённое</span>
+            <span className="pinned-text">{chat.pinnedMessage.content || 'Вложение'}</span>
+          </div>
+        </div>
+      )}
+
       <div className="chat-messages" ref={containerRef} onScroll={(e) => {
         if (e.target.scrollTop < 50) loadMore();
       }}>
@@ -134,10 +154,13 @@ export default function ChatWindow({
               isOwn={msg.senderId === user.id}
               showSender={showSender}
               senderUser={sender}
+              isPinned={pinnedIds.has(msg.id)}
               onReply={setReplyTo}
               onEdit={onEdit}
               onDelete={onDelete}
               onReact={onReact}
+              onForward={onForward}
+              onPin={onPin}
               onOpenProfile={onOpenProfile}
             />
           );
@@ -156,6 +179,7 @@ export default function ChatWindow({
         onTyping={handleTyping}
         replyTo={replyTo}
         onCancelReply={() => setReplyTo(null)}
+        members={chat.members}
       />
     </div>
   );

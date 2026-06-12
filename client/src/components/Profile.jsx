@@ -137,6 +137,21 @@ export default function Profile({ user, onSave, onLogout, onClose }) {
             rows={3}
             placeholder="Расскажите о себе..."
           />
+
+          <label className="toggle-row">
+            <span>Email-уведомления</span>
+            <input
+              type="checkbox"
+              checked={avatarUser.emailNotifications !== false}
+              onChange={async (e) => {
+                try {
+                  const updated = await api.updateNotifications(e.target.checked);
+                  setAvatarUser(updated);
+                  await onSave(updated, { silent: true });
+                } catch {}
+              }}
+            />
+          </label>
         </div>
 
         {error && <div className="auth-error" style={{ margin: '0 20px' }}>{error}</div>}
