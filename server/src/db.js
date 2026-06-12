@@ -38,6 +38,17 @@ const db = {
 
 async function initDB() {
   await pool.query(`
+    DROP TABLE IF EXISTS group_admins CASCADE;
+    DROP TABLE IF EXISTS user_blocks CASCADE;
+    DROP TABLE IF EXISTS message_reactions CASCADE;
+    DROP TABLE IF EXISTS attachments CASCADE;
+    DROP TABLE IF EXISTS messages CASCADE;
+    DROP TABLE IF EXISTS chat_members CASCADE;
+    DROP TABLE IF EXISTS chats CASCADE;
+    DROP TABLE IF EXISTS users CASCADE;
+  `);
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       username TEXT UNIQUE NOT NULL,
