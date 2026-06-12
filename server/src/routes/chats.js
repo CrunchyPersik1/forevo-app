@@ -33,7 +33,9 @@ async function getClearedAt(chatId, userId) {
 
 async function getChatMembers(chatId) {
   const rows = await db.all(`
-    SELECT u.id, u.username, u.display_name, u.avatar, u.bio, u.last_seen, u.created_at, cm.role, cm.joined_at
+    SELECT u.id, u.username, u.display_name, u.avatar, u.bio, u.last_seen, u.created_at,
+           u.nickname_color, u.is_moderator, u.avatar_emoji,
+           cm.role, cm.joined_at
     FROM chat_members cm
     JOIN users u ON u.id = cm.user_id
     WHERE cm.chat_id = $1
@@ -47,6 +49,9 @@ async function getChatMembers(chatId) {
     bio: m.bio,
     lastSeen: m.last_seen,
     createdAt: m.created_at,
+    nicknameColor: m.nickname_color,
+    isModerator: m.is_moderator,
+    avatarEmoji: m.avatar_emoji,
     role: m.role,
     joinedAt: m.joined_at,
   }));

@@ -492,7 +492,7 @@
 .modal {
   width: 420px;
   max-width: 90vw;
-  max-height: 80vh;
+  max-height: 85vh;
   background: var(--bg-secondary);
   border-radius: 16px;
   border: 1px solid var(--border);
@@ -500,6 +500,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  overflow-y: auto;
 }
 .modal-header {
   display: flex;

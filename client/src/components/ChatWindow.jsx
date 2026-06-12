@@ -105,7 +105,7 @@ export default function ChatWindow({
         {showMenu && (
           <>
             <div className="msg-menu-overlay" onClick={() => setShowMenu(false)} />
-            <div className="chat-header-menu">
+            <div className="chat-header-menu" onClick={e => e.stopPropagation()}>
               {chat.type === 'group' && (
                 <button onClick={() => { setShowMenu(false); onOpenGroupSettings?.(); }}>⚙️ Настройки группы</button>
               )}
