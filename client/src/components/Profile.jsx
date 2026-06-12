@@ -152,6 +152,73 @@ export default function Profile({ user, onSave, onLogout, onClose }) {
               }}
             />
           </label>
+
+          <label>Цвет ника</label>
+          <div className="color-picker-row">
+            {['#ff6b6b', '#ffa502', '#ffd93d', '#6bcb77', '#4d96ff', '#6c5ce7', '#e84393', '#00cec9'].map(c => (
+              <button key={c} className={`color-dot ${avatarUser.nicknameColor === c ? 'active' : ''}`}
+                style={{ background: c }}
+                onClick={async () => {
+                  try {
+                    const updated = await api.updateNicknameColor(c);
+                    setAvatarUser(updated);
+                    await onSave(updated, { silent: true });
+                  } catch (e) { alert(e.message); }
+                }} />
+            ))}
+            <button className={`color-dot ${avatarUser.nicknameColor === 'gradient' ? 'active' : ''}`}
+              style={{ background: 'linear-gradient(135deg, #6c5ce7, #e84393)' }}
+              onClick={async () => {
+                try {
+                  const updated = await api.updateNicknameColor('gradient');
+                  setAvatarUser(updated);
+                  await onSave(updated, { silent: true });
+                } catch (e) { alert(e.message); }
+              }} />
+            {avatarUser.isModerator && (
+              <button className={`color-dot ${avatarUser.nicknameColor === 'rainbow' ? 'active' : ''}`}
+                style={{ background: 'linear-gradient(90deg, red, orange, yellow, green, blue, violet)' }}
+                onClick={async () => {
+                  try {
+                    const updated = await api.updateNicknameColor('rainbow');
+                    setAvatarUser(updated);
+                    await onSave(updated, { silent: true });
+                  } catch (e) { alert(e.message); }
+                }} />
+            )}
+            {avatarUser.nicknameColor && (
+              <button className="color-dot clear" onClick={async () => {
+                try {
+                  const updated = await api.updateNicknameColor(null);
+                  setAvatarUser(updated);
+                  await onSave(updated, { silent: true });
+                } catch {}
+              }}>✕</button>
+            )}
+          </div>
+
+          <label>Эмодзи на аватарку</label>
+          <div className="emoji-picker-row">
+            {['👑', '🔥', '💎', '🎮', '🎵', '💀', '🤖', '⭐', '❤️', '🚀', '🦋', '🌸'].map(e => (
+              <button key={e} className={`emoji-dot ${avatarUser.avatarEmoji === e ? 'active' : ''}`}
+                onClick={async () => {
+                  try {
+                    const updated = await api.updateAvatarEmoji(e);
+                    setAvatarUser(updated);
+                    await onSave(updated, { silent: true });
+                  } catch (err) { alert(err.message); }
+                }}>{e}</button>
+            ))}
+            {avatarUser.avatarEmoji && (
+              <button className="emoji-dot clear" onClick={async () => {
+                try {
+                  const updated = await api.updateAvatarEmoji(null);
+                  setAvatarUser(updated);
+                  await onSave(updated, { silent: true });
+                } catch {}
+              }}>✕</button>
+            )}
+          </div>
         </div>
 
         {error && <div className="auth-error" style={{ margin: '0 20px' }}>{error}</div>}

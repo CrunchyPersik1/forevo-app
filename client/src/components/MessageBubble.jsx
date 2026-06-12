@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Avatar from './Avatar';
+import PhotoViewer from './PhotoViewer';
 import { formatTime, formatFileSize } from '../utils';
 
 const REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🔥'];
@@ -11,7 +12,7 @@ export default function MessageBubble({
   const [showMenu, setShowMenu] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(message.content || '');
-
+  const [viewPhoto, setViewPhoto] = useState(null);
   useEffect(() => {
     if (editing) setEditText(message.content || '');
   }, [message.content, editing]);
@@ -56,7 +57,12 @@ export default function MessageBubble({
       )}
       <div className="msg-content-col">
         {showSender && !isOwn && (
-          <button className="msg-sender" onClick={() => onOpenProfile?.(message.senderId)}>
+          <button
+            className={`msg-sender ${senderUser?.nicknameColor === 'rainbow' ? 'nickname-rainbow' : senderUser?.nicknameColor === 'gradient' ? 'nickname-gradient' : ''}`}
+            style={senderUser?.nicknameColor && senderUser.nicknameColor !== 'rainbow' && senderUser.nicknameColor !== 'gradient' ? { color: senderUser.nicknameColor } : undefined}
+            onClick={() => onOpenProfile?.(message.senderId)}
+          >
+            {senderUser?.isModerator && <span className="mod-badge">⭐</span>}
             {message.senderName}
           </button>
         )}
@@ -92,7 +98,7 @@ export default function MessageBubble({
             <>
               {message.type === 'text' && <p className="msg-text">{renderContent(message.content)}</p>}
               {message.type === 'image' && message.attachments?.map(a => (
-                <img key={a.id} src={a.url} alt="" className="msg-image" loading="lazy" />
+                <img key={a.id} src={a.url} alt="" className="msg-image" loading="lazy" onClick={() => setViewPhoto(a.url)} />
               ))}
               {message.type === 'voice' && message.attachments?.map(a => (
                 <audio key={a.id} src={a.url} controls className="msg-audio" preload="metadata" type="audio/webm" />
@@ -156,6 +162,7 @@ export default function MessageBubble({
           </div>
         </>
       )}
+      {viewPhoto && <PhotoViewer src={viewPhoto} onClose={() => setViewPhoto(null)} />}
     </div>
   );
 }

@@ -30,6 +30,9 @@ export function publicUser(row, extras = {}) {
     createdAt: row.created_at,
     usernameUpdatedAt: row.username_updated_at ?? null,
     emailNotifications: row.email_notifications ?? true,
+    nicknameColor: row.nickname_color ?? null,
+    isModerator: row.is_moderator ?? false,
+    avatarEmoji: row.avatar_emoji ?? null,
     ...extras,
   };
 }

@@ -71,4 +71,6 @@ export const api = {
   pinMessage: (messageId) => request(`/messages/${messageId}/pin`, { method: 'POST' }),
   unpinMessage: (messageId) => request(`/messages/${messageId}/pin`, { method: 'DELETE' }),
   updateNotifications: (emailNotifications) => request('/users/me/notifications', { method: 'PATCH', body: JSON.stringify({ emailNotifications }) }),
+  updateNicknameColor: (color) => request('/users/me/nickname-color', { method: 'PATCH', body: JSON.stringify({ color }) }),
+  updateAvatarEmoji: (emoji) => request('/users/me/avatar-emoji', { method: 'PATCH', body: JSON.stringify({ emoji }) }),
 };

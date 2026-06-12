@@ -151,6 +151,36 @@ router.patch('/me/notifications', async (req, res) => {
   res.json(publicUser(updated));
 });
 
+router.patch('/me/nickname-color', async (req, res) => {
+  const { color } = req.body;
+  const user = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  if (color && color !== 'gradient' && color !== 'rainbow') {
+    if (!/^#[0-9a-fA-F]{6}$/.test(color)) {
+      return res.status(400).json({ error: 'Invalid color format' });
+    }
+  }
+
+  if (color === 'rainbow' && !user.is_moderator) {
+    return res.status(403).json({ error: 'Rainbow nickname is for moderators only' });
+  }
+
+  await db.run('UPDATE users SET nickname_color = $1 WHERE id = $2', [color || null, req.userId]);
+  const updated = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
+  emitUserUpdated(req.app.locals.io, updated);
+  res.json(publicUser(updated));
+});
+
+router.patch('/me/avatar-emoji', async (req, res) => {
+  const { emoji } = req.body;
+  if (emoji && emoji.length > 2) return res.status(400).json({ error: 'Emoji must be 1-2 characters' });
+  await db.run('UPDATE users SET avatar_emoji = $1 WHERE id = $2', [emoji || null, req.userId]);
+  const updated = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
+  emitUserUpdated(req.app.locals.io, updated);
+  res.json(publicUser(updated));
+});
+
 router.get('/search', async (req, res) => {
   const q = (req.query.q || '').trim().toLowerCase();
   if (!q) return res.json([]);

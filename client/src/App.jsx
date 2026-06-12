@@ -42,6 +42,13 @@ export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('forevo-theme') || 'dark');
   const [forwardingMessage, setForwardingMessage] = useState(null);
 
+  const getWallpaper = (chatId) => localStorage.getItem(`forevo-wallpaper-${chatId}`) || null;
+  const setWallpaper = (chatId, url) => {
+    if (url) localStorage.setItem(`forevo-wallpaper-${chatId}`, url);
+    else localStorage.removeItem(`forevo-wallpaper-${chatId}`);
+    setActiveChat(prev => prev?.id === chatId ? { ...prev, _wallpaper: url } : prev);
+  };
+
   const chatMessagesRef = useRef(new Map());
   const [displayMessages, setDisplayMessages] = useState([]);
   const activeChatIdRef = useRef(null);
@@ -490,6 +497,8 @@ export default function App() {
           onReact={(id, emoji) => api.reactMessage(id, emoji)}
           onForward={handleForward}
           onPin={handlePin}
+          wallpaper={getWallpaper(activeChat?.id)}
+          onSetWallpaper={(url) => setWallpaper(activeChat?.id, url)}
           onBack={() => setMobileShowChat(false)}
           onMarkRead={handleMarkRead}
           onOpenProfile={setViewProfileId}

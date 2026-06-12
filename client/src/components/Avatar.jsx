@@ -10,6 +10,7 @@ export default function Avatar({ user, size = 40, online, onClick, lazy = true }
 
   const showImage = user?.avatar && !error;
   const initials = isGroup ? (name[0] || '?').toUpperCase() : getInitials(name);
+  const emoji = user?.avatarEmoji;
 
   const inner = showImage ? (
     <>
@@ -40,6 +41,9 @@ export default function Avatar({ user, size = 40, online, onClick, lazy = true }
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
     >
       {inner}
+      {emoji && (
+        <span className="avatar-emoji-badge" style={{ fontSize: size * 0.35 }}>{emoji}</span>
+      )}
       {online !== undefined && (
         <span className={`avatar-status ${online ? 'online' : ''}`} />
       )}

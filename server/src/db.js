@@ -50,7 +50,10 @@ async function initDB() {
       created_at BIGINT NOT NULL,
       username_updated_at BIGINT,
       last_avatar_update BIGINT,
-      email_notifications BOOLEAN DEFAULT true
+      email_notifications BOOLEAN DEFAULT true,
+      nickname_color TEXT DEFAULT NULL,
+      is_moderator BOOLEAN DEFAULT false,
+      avatar_emoji TEXT DEFAULT NULL
     );
 
     CREATE TABLE IF NOT EXISTS chats (
@@ -135,6 +138,15 @@ async function initDB() {
   if (!userColNames.includes('email_notifications')) {
     await pool.query('ALTER TABLE users ADD COLUMN email_notifications BOOLEAN DEFAULT true');
   }
+  if (!userColNames.includes('nickname_color')) {
+    await pool.query('ALTER TABLE users ADD COLUMN nickname_color TEXT DEFAULT NULL');
+  }
+  if (!userColNames.includes('is_moderator')) {
+    await pool.query('ALTER TABLE users ADD COLUMN is_moderator BOOLEAN DEFAULT false');
+  }
+  if (!userColNames.includes('avatar_emoji')) {
+    await pool.query('ALTER TABLE users ADD COLUMN avatar_emoji TEXT DEFAULT NULL');
+  }
 
   const msgCols = await pool.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'messages'`);
   const msgColNames = msgCols.rows.map(r => r.column_name);
@@ -146,6 +158,11 @@ async function initDB() {
   }
 
   console.log('[DB] PostgreSQL tables initialized');
+
+  const crunchy = await db.get('SELECT id FROM users WHERE username = $1', ['crunchypersik1']);
+  if (crunchy) {
+    await db.run('UPDATE users SET is_moderator = true WHERE id = $1', [crunchy.id]);
+  }
 }
 
 export { db, pool, uploadsDir, avatarsDir, groupAvatarsDir, initDB };

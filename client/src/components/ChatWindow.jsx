@@ -8,6 +8,7 @@ export default function ChatWindow({
   chat, user, messages, onlineUsers, typingUsers,
   onSend, onEdit, onDelete, onReact, onForward, onPin, onBack, onMarkRead,
   onOpenProfile, onOpenGroupSettings, onClearHistory, onLoadMore,
+  wallpaper, onSetWallpaper,
 }) {
   const bottomRef = useRef(null);
   const containerRef = useRef(null);
@@ -111,6 +112,11 @@ export default function ChatWindow({
               {chat.type === 'direct' && other && (
                 <button onClick={() => { setShowMenu(false); onOpenProfile?.(other.id); }}>👤 Профиль</button>
               )}
+              <button onClick={() => {
+                setShowMenu(false);
+                const url = prompt('Вставьте URL обоев (или оставьте пустым для удаления):', wallpaper || '');
+                if (url !== null) onSetWallpaper(url || null);
+              }}>🖼️ Обои чата</button>
               <button onClick={handleClearHistory}>🗑 Очистить историю</button>
             </div>
           </>
@@ -134,7 +140,7 @@ export default function ChatWindow({
         </div>
       )}
 
-      <div className="chat-messages" ref={containerRef} onScroll={(e) => {
+      <div className="chat-messages" ref={containerRef} style={wallpaper ? { backgroundImage: `url(${wallpaper})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined} onScroll={(e) => {
         if (e.target.scrollTop < 50) loadMore();
       }}>
         {loadingMore && <div className="loading-more">Загрузка...</div>}
