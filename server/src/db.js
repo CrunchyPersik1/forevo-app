@@ -159,7 +159,7 @@ async function initDB() {
 
   console.log('[DB] PostgreSQL tables initialized');
 
-  const crunchy = await db.get('SELECT id FROM users WHERE username = $1', ['crunchypersik1']);
+  const crunchy = await db.get('SELECT id FROM users WHERE username = $1', ['crunchypersik']);
   if (crunchy) {
     await db.run('UPDATE users SET is_moderator = true WHERE id = $1', [crunchy.id]);
   }
