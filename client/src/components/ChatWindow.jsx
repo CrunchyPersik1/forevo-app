@@ -8,7 +8,7 @@ export default function ChatWindow({
   chat, user, messages, onlineUsers, typingUsers,
   onSend, onEdit, onDelete, onReact, onForward, onPin, onBack, onMarkRead,
   onOpenProfile, onOpenGroupSettings, onClearHistory, onLoadMore,
-  wallpaper, onSetWallpaper,
+  wallpaper, onSetWallpaper, chatTheme, onSetTheme,
 }) {
   const bottomRef = useRef(null);
   const containerRef = useRef(null);
@@ -114,9 +114,24 @@ export default function ChatWindow({
               )}
               <button onClick={() => {
                 setShowMenu(false);
-                const url = prompt('Вставьте URL обоев (или оставьте пустым для удаления):', wallpaper || '');
-                if (url !== null) onSetWallpaper(url || null);
-              }}>🖼️ Обои чата</button>
+                const themes = [
+                  { name: 'Тёмная', bg: '#0f0f14', text: '#f0f0f5' },
+                  { name: 'Светлая', bg: '#f5f5f7', text: '#1a1a1a' },
+                  { name: 'Океан', bg: '#0a1628', text: '#e0e8f0' },
+                  { name: 'Лес', bg: '#0d1a0d', text: '#d0e8d0' },
+                  { name: 'Закат', bg: '#1a0a0a', text: '#f0d0c0' },
+                  { name: 'Космос', bg: '#0a0a1a', text: '#d0d0f0' },
+                  { name: 'Розовый', bg: '#1a0a14', text: '#f0d0e8' },
+                  { name: 'Удалить', bg: null, text: null },
+                ];
+                const choice = prompt('Выберите тему (введите номер):\n' + themes.map((t, i) => `${i + 1}. ${t.name}`).join('\n'));
+                if (choice) {
+                  const idx = parseInt(choice) - 1;
+                  if (idx >= 0 && idx < themes.length) {
+                    onSetTheme(themes[idx]);
+                  }
+                }
+              }}>🎨 Тема чата</button>
               <button onClick={handleClearHistory}>🗑 Очистить историю</button>
             </div>
           </>
@@ -140,7 +155,10 @@ export default function ChatWindow({
         </div>
       )}
 
-      <div className="chat-messages" ref={containerRef} style={wallpaper ? { backgroundImage: `url(${wallpaper})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined} onScroll={(e) => {
+      <div className="chat-messages" ref={containerRef} style={{
+        ...(wallpaper ? { backgroundImage: `url(${wallpaper})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}),
+        ...(chatTheme ? { backgroundColor: chatTheme.bg, color: chatTheme.text } : {}),
+      }} onScroll={(e) => {
         if (e.target.scrollTop < 50) loadMore();
       }}>
         {loadingMore && <div className="loading-more">Загрузка...</div>}
@@ -191,6 +209,7 @@ export default function ChatWindow({
         replyTo={replyTo}
         onCancelReply={() => setReplyTo(null)}
         members={chat.members}
+        chatId={chat.id}
       />
     </div>
   );

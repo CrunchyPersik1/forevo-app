@@ -49,6 +49,15 @@ export default function App() {
     setActiveChat(prev => prev?.id === chatId ? { ...prev, _wallpaper: url } : prev);
   };
 
+  const getChatTheme = (chatId) => {
+    try { return JSON.parse(localStorage.getItem(`forevo-theme-${chatId}`)); } catch { return null; }
+  };
+  const setChatTheme = (chatId, themeObj) => {
+    if (themeObj && themeObj.bg) localStorage.setItem(`forevo-theme-${chatId}`, JSON.stringify(themeObj));
+    else localStorage.removeItem(`forevo-theme-${chatId}`);
+    setActiveChat(prev => prev?.id === chatId ? { ...prev, _chatTheme: themeObj } : prev);
+  };
+
   const chatMessagesRef = useRef(new Map());
   const [displayMessages, setDisplayMessages] = useState([]);
   const activeChatIdRef = useRef(null);
@@ -58,6 +67,9 @@ export default function App() {
 
   const userRef = useRef(null);
   userRef.current = user;
+
+  const chatsRef = useRef(chats);
+  chatsRef.current = chats;
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -69,6 +81,28 @@ export default function App() {
       Notification.requestPermission();
     }
   }, []);
+
+  const playNotificationSound = () => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 800;
+      osc.type = 'sine';
+      gain.gain.value = 0.15;
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.stop(ctx.currentTime + 0.3);
+    } catch {}
+  };
+
+  const showBrowserNotification = (title, body) => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, { body, icon: '/favicon.ico', tag: 'forevo' });
+    }
+  };
 
   const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
 
@@ -149,6 +183,11 @@ export default function App() {
       if (!existing.find(m => m.id === msg.id)) {
         chatMessagesRef.current.set(chatId, [...existing, msg]);
         refreshDisplay(chatId);
+      }
+      if (msg.senderId !== userRef.current?.id && chatId !== activeChatIdRef.current) {
+        playNotificationSound();
+        const chatName = chatsRef.current?.find(c => c.id === chatId)?.name || 'Forevo';
+        showBrowserNotification(msg.senderName || chatName, msg.content || 'Вложение');
       }
       setChats(prev => {
         const ac = activeChatIdRef.current;
@@ -500,6 +539,8 @@ export default function App() {
           onPin={handlePin}
           wallpaper={getWallpaper(activeChat?.id)}
           onSetWallpaper={(url) => setWallpaper(activeChat?.id, url)}
+          chatTheme={getChatTheme(activeChat?.id)}
+          onSetTheme={(themeObj) => setChatTheme(activeChat?.id, themeObj)}
           onBack={() => setMobileShowChat(false)}
           onMarkRead={handleMarkRead}
           onOpenProfile={setViewProfileId}

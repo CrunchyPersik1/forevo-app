@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply, members }) {
-  const [text, setText] = useState('');
+export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply, members, chatId }) {
+  const [text, setText] = useState(() => {
+    if (chatId) return localStorage.getItem(`forevo-draft-${chatId}`) || '';
+    return '';
+  });
   const [recording, setRecording] = useState(false);
   const [mentionQuery, setMentionQuery] = useState(null);
   const [mentionIndex, setMentionIndex] = useState(0);
@@ -12,6 +15,33 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
   const chunksRef = useRef([]);
   const typingTimer = useRef(null);
   const textareaRef = useRef(null);
+  const chatIdRef = useRef(chatId);
+  chatIdRef.current = chatId;
+
+  useEffect(() => {
+    return () => {
+      if (typingTimer.current) clearTimeout(typingTimer.current);
+      if (recorderRef.current?.state === 'recording') {
+        recorderRef.current.stop();
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+      }
+      onTyping(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    setText(localStorage.getItem(`forevo-draft-${chatId}`) || '');
+  }, [chatId]);
+
+  useEffect(() => {
+    if (text) {
+      localStorage.setItem(`forevo-draft-${chatIdRef.current}`, text);
+    } else if (chatIdRef.current) {
+      localStorage.removeItem(`forevo-draft-${chatIdRef.current}`);
+    }
+  }, [text]);
 
   useEffect(() => () => {
     if (typingTimer.current) clearTimeout(typingTimer.current);
@@ -65,6 +95,7 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
     try {
       await onSend({ content: text.trim(), replyToId: replyTo?.id });
       setText('');
+      localStorage.removeItem(`forevo-draft-${chatIdRef.current}`);
       setMentionQuery(null);
       onCancelReply();
     } catch {}
