@@ -665,7 +665,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 4px;
-  z-index: 50;
+  z-index: 101;
   box-shadow: var(--shadow);
   min-width: 180px;
 }
