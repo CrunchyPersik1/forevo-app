@@ -152,24 +152,33 @@ router.patch('/me/notifications', async (req, res) => {
 });
 
 router.patch('/me/nickname-color', async (req, res) => {
-  const { color } = req.body;
-  const user = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
-  if (!user) return res.status(404).json({ error: 'User not found' });
+  try {
+    const { color } = req.body;
+    console.log('[COLOR] userId=', req.userId, 'color=', color);
+    const user = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    console.log('[COLOR] user found, is_moderator=', user.is_moderator);
 
-  if (color && color !== 'gradient' && color !== 'rainbow') {
-    if (!/^#[0-9a-fA-F]{6}$/.test(color)) {
-      return res.status(400).json({ error: 'Invalid color format' });
+    if (color && color !== 'gradient' && color !== 'rainbow') {
+      if (!/^#[0-9a-fA-F]{6}$/.test(color)) {
+        console.log('[COLOR] invalid color format:', color);
+        return res.status(400).json({ error: 'Invalid color format' });
+      }
     }
-  }
 
-  if (color === 'rainbow' && !user.is_moderator) {
-    return res.status(403).json({ error: 'Rainbow nickname is for moderators only' });
-  }
+    if (color === 'rainbow' && !user.is_moderator) {
+      return res.status(403).json({ error: 'Rainbow nickname is for moderators only' });
+    }
 
-  await db.run('UPDATE users SET nickname_color = $1 WHERE id = $2', [color || null, req.userId]);
-  const updated = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
-  emitUserUpdated(req.app.locals.io, updated);
-  res.json(publicUser(updated));
+    await db.run('UPDATE users SET nickname_color = $1 WHERE id = $2', [color || null, req.userId]);
+    console.log('[COLOR] saved successfully');
+    const updated = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
+    emitUserUpdated(req.app.locals.io, updated);
+    res.json(publicUser(updated));
+  } catch (err) {
+    console.error('[COLOR] error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 router.patch('/me/avatar-emoji', async (req, res) => {
