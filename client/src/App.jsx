@@ -10,6 +10,7 @@ import Profile from './components/Profile';
 import UserProfile from './components/UserProfile';
 import GroupSettings from './components/GroupSettings';
 import ForwardModal from './components/ForwardModal';
+import Market from './components/Market';
 import './App.css';
 
 function applyUserToChats(chats, updatedUser, myId) {
@@ -41,6 +42,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState(() => localStorage.getItem('forevo-theme') || 'dark-purple');
   const [forwardingMessage, setForwardingMessage] = useState(null);
+  const [showMarket, setShowMarket] = useState(false);
 
   const getWallpaper = (chatId) => localStorage.getItem(`forevo-wallpaper-${chatId}`) || null;
   const setWallpaper = (chatId, url) => {
@@ -578,6 +580,7 @@ export default function App() {
           onClose={() => setShowProfile(false)}
           theme={theme}
           onSetTheme={setTheme}
+          onShowMarket={() => setShowMarket(true)}
         />
       )}
       {viewProfileId && (
@@ -627,6 +630,13 @@ export default function App() {
           user={user}
           onSelect={handleForwardToChat}
           onClose={() => setForwardingMessage(null)}
+        />
+      )}
+      {showMarket && (
+        <Market
+          user={user}
+          onClose={() => setShowMarket(false)}
+          onUpdate={handleProfileSave}
         />
       )}
     </div>

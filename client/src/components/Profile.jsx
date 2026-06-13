@@ -54,7 +54,7 @@ export function playProfileSound(soundId) {
   } catch {}
 }
 
-export default function Profile({ user, onSave, onLogout, onClose, theme, onSetTheme }) {
+export default function Profile({ user, onSave, onLogout, onClose, theme, onSetTheme, onShowMarket }) {
   const [screen, setScreen] = useState('view');
   const [displayName, setDisplayName] = useState(user.displayName);
   const [username, setUsername] = useState(user.username);
@@ -65,7 +65,6 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
   const [usernameStatus, setUsernameStatus] = useState(null);
   const [usernameError, setUsernameError] = useState('');
   const [error, setError] = useState('');
-  const [showMarket, setShowMarket] = useState(false);
   const [myNfts, setMyNfts] = useState([]);
   const fileRef = useRef(null);
 
@@ -155,13 +154,11 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
 
   if (screen === 'view') {
     return (
-      <>
-        {showMarket && <Market user={user} onClose={() => setShowMarket(false)} onUpdate={onSave} />}
-        <div className="modal-overlay" onClick={onClose}>
-          <div className="modal profile-modal" onClick={e => e.stopPropagation()} style={{ position: 'relative', overflow: 'hidden' }}>
-            {gradientObj && <div className="profile-gradient" style={{ background: gradientObj.colors }} />}
+      <div className="modal-overlay" onClick={onClose}>
+        <div className="modal profile-modal" onClick={e => e.stopPropagation()} style={{ position: 'relative', overflow: 'hidden' }}>
+          {gradientObj && <div className="profile-gradient" style={{ background: gradientObj.colors }} />}
 
-            <div className="modal-header" style={{ position: 'relative', zIndex: 1 }}>
+          <div className="modal-header" style={{ position: 'relative', zIndex: 1 }}>
               <h3>Профиль</h3>
               <button onClick={onClose}>✕</button>
             </div>
@@ -201,7 +198,7 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
               <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} onClick={() => setScreen('custom')}>
                 🎨 Кастомизация
               </button>
-              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'linear-gradient(135deg, #ffd700, #ff8c00)', color: '#1a1a1a' }} onClick={() => setShowMarket(true)}>
+              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'linear-gradient(135deg, #ffd700, #ff8c00)', color: '#1a1a1a' }} onClick={onShowMarket}>
                 🏪 Рынок
               </button>
             </div>
@@ -224,7 +221,7 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
             )}
           </div>
         </div>
-      </>
+      </div>
     );
   }
 

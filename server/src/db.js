@@ -139,9 +139,10 @@ async function initDB() {
       name TEXT NOT NULL,
       emoji TEXT NOT NULL,
       category TEXT NOT NULL DEFAULT 'nft',
-      rarity TEXT NOT NULL DEFAULT 'common' CHECK(rarity IN ('common', 'rare', 'epic', 'legendary')),
+      rarity TEXT NOT NULL DEFAULT 'common' CHECK(rarity IN ('common', 'rare', 'epic', 'legendary', 'exclusive')),
       price INTEGER NOT NULL DEFAULT 10,
-      description TEXT DEFAULT ''
+      description TEXT DEFAULT '',
+      exclusive BOOLEAN DEFAULT false
     );
 
     CREATE TABLE IF NOT EXISTS user_nfts (
@@ -226,17 +227,12 @@ async function initDB() {
     const crunchyNfts = await db.get('SELECT COUNT(*)::int as count FROM user_nfts WHERE user_id = $1', [crunchy.id]);
     if (crunchyNfts && crunchyNfts.count === 0) {
       const starterNfts = [
-        'nft-diamond', 'nft-fire', 'nft-star', 'nft-crown', 'nft-rocket', 'nft-dragon',
-        'nft-unicorn', 'nft-galaxy', 'nft-phoenix', 'nft-moon', 'nft-sun', 'nft-bolt',
-        'nft-snow', 'nft-rainbow', 'nft-heart',
-        'nft-diamond', 'nft-fire', 'nft-star', 'nft-crown', 'nft-rocket', 'nft-dragon',
-        'nft-unicorn', 'nft-galaxy', 'nft-phoenix', 'nft-moon', 'nft-sun', 'nft-bolt',
-        'nft-snow', 'nft-rainbow', 'nft-heart',
-        'nft-diamond', 'nft-fire', 'nft-star', 'nft-crown', 'nft-rocket', 'nft-dragon',
-        'nft-unicorn', 'nft-galaxy', 'nft-phoenix', 'nft-moon', 'nft-sun', 'nft-bolt',
-        'nft-snow', 'nft-rainbow', 'nft-heart',
-        'nft-diamond', 'nft-fire', 'nft-star', 'nft-crown', 'nft-rocket', 'nft-dragon',
-        'nft-unicorn', 'nft-galaxy',
+        'ex-crown', 'ex-phoenix', 'ex-infinity', 'ex-rocket',
+        'ex-star', 'ex-diamond', 'ex-lightning', 'ex-moon',
+        'nft-aurora', 'nft-ember', 'nft-cipher', 'nft-void',
+        'nft-echo', 'nft-prism', 'nft-nova', 'nft-spectrum',
+        'nft-eclipse', 'nft-phantom', 'nft-zenith',
+        'nft-singularity', 'nft-leviathan', 'nft-chronos', 'nft-omega',
       ];
       for (const nftId of starterNfts) {
         await db.run('INSERT INTO user_nfts (id, user_id, nft_id, acquired_at) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING',
@@ -266,6 +262,20 @@ async function initDB() {
     ];
     for (const [id, emoji, name, cat, rarity, price, desc] of nfts) {
       await db.run('INSERT INTO nft_items (id, name, emoji, category, rarity, price, description) VALUES ($1,$2,$3,$4,$5,$6,$7)', [id, name, emoji, cat, rarity, price, desc]);
+    }
+
+    const exclusiveNfts = [
+      ['ex-crown', '👑', 'Корона Создателя', 'exclusive', 'legendary', 0, 'Только для основателя', true],
+      ['ex-phoenix', '🦅', 'Феникс Forevo', 'exclusive', 'legendary', 0, 'Возрождение мессенджера', true],
+      ['ex-infinity', '♾️', 'Бесконечность', 'exclusive', 'legendary', 0, 'Безграничные возможности', true],
+      ['ex-rocket', '🚀', 'Первопроходец', 'exclusive', 'legendary', 0, 'Первый в космосе', true],
+      ['ex-star', '🌟', 'Звезда', 'exclusive', 'legendary', 0, 'Сияет ярче всех', true],
+      ['ex-diamond', '💎', 'Бриллиант', 'exclusive', 'legendary', 0, 'Несокрушимый', true],
+      ['ex-lightning', '⚡', 'Молния', 'exclusive', 'legendary', 0, 'Скорость мысли', true],
+      ['ex-moon', '🌙', 'Луна', 'exclusive', 'legendary', 0, 'Ночная стража', true],
+    ];
+    for (const [id, emoji, name, cat, rarity, price, desc, excl] of exclusiveNfts) {
+      await db.run('INSERT INTO nft_items (id, name, emoji, category, rarity, price, description, exclusive) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)', [id, name, emoji, cat, rarity, price, desc, excl]);
     }
   }
 

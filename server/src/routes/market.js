@@ -99,6 +99,22 @@ router.get('/my-nfts', async (req, res) => {
   }
 });
 
+router.get('/nfts/user/:userId', async (req, res) => {
+  try {
+    const items = await db.all(`
+      SELECT un.*, ni.name, ni.emoji, ni.rarity, ni.description
+      FROM user_nfts un
+      JOIN nft_items ni ON ni.id = un.nft_id
+      WHERE un.user_id = $1
+      ORDER BY un.acquired_at DESC
+    `, [req.params.userId]);
+    res.json(items);
+  } catch (err) {
+    console.error('GET /market/nfts/user/:userId error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.get('/my-themes', async (req, res) => {
   try {
     const items = await db.all(`
