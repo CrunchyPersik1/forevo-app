@@ -1,5 +1,21 @@
 import { useState, useRef, useEffect } from 'react';
 
+const EMOJI_CATEGORIES = {
+  'Частые': ['😀', '😂', '😍', '🥰', '😎', '🤔', '👍', '❤️', '🔥', '✨', '🎉', '💪', '🙏', '😭', '🥳', '😇'],
+  'Животные': ['🐶', '🐱', '🐻', '🦊', '🐸', '🐵', '🦁', '🐼', '🐨', '🐰', '🦄', '🐝', '🦋', '🐙', '🦈', '🐬'],
+  'Еда': ['🍕', '🍔', '🍟', '🌮', '🍣', '🍰', '🍩', '🍪', '🍫', '☕', '🥤', '🍺', '🍷', '🍎', '🍕', '🥑'],
+  'Объекты': ['💎', '🎮', '🎵', '📱', '💻', '📸', '🎬', '📚', '✈️', '🚀', '🏠', '🔑', '💡', '⏰', '💰', '🎁'],
+  'Природа': ['🌸', '🌺', '🌻', '🌹', '🌴', '🌈', '⭐', '🌙', '☀️', '🔥', '❄️', '🌊', '🍀', '🍁', '🌊', '⚡'],
+  'Жесты': ['👋', '🤙', '✌️', '🤝', '👏', '🙌', '💪', '🫶', '🤌', '🫡', '💅', '👋', '🫰', '🤟', '🤙', '✊'],
+};
+
+const STICKERS = [
+  '🥴', '🤡', '💀', '👻', '🎃', '😈', '👹', '👺',
+  '🤖', '👽', '🧠', '💜', '🖤', '🤍', '💔', '❣️',
+  '💘', '💝', '💖', '💗', '💞', '💕', '💓', '💟',
+  '🏳️‍🌈', '🏴‍☠️', '🇺🇳', '☮️', '☯️', '✡️', '☪️', '🕉️',
+];
+
 export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply, members, chatId }) {
   const [text, setText] = useState(() => {
     if (chatId) return localStorage.getItem(`forevo-draft-${chatId}`) || '';
@@ -8,6 +24,8 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
   const [recording, setRecording] = useState(false);
   const [mentionQuery, setMentionQuery] = useState(null);
   const [mentionIndex, setMentionIndex] = useState(0);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const [emojiCategory, setEmojiCategory] = useState('Частые');
   const fileRef = useRef(null);
   const mediaRef = useRef(null);
   const recorderRef = useRef(null);
@@ -43,17 +61,6 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
     }
   }, [text]);
 
-  useEffect(() => () => {
-    if (typingTimer.current) clearTimeout(typingTimer.current);
-    if (recorderRef.current?.state === 'recording') {
-      recorderRef.current.stop();
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop());
-    }
-    onTyping(false);
-  }, []);
-
   const handleTyping = () => {
     onTyping(true);
     clearTimeout(typingTimer.current);
@@ -69,6 +76,11 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
     setText(before + '@' + username + ' ');
     setMentionQuery(null);
     setMentionIndex(0);
+    textareaRef.current?.focus();
+  };
+
+  const insertEmoji = (emoji) => {
+    setText(prev => prev + emoji);
     textareaRef.current?.focus();
   };
 
@@ -184,6 +196,30 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
         </div>
       )}
 
+      {showEmoji && (
+        <div className="emoji-panel">
+          <div className="emoji-panel-tabs">
+            {Object.keys(EMOJI_CATEGORIES).map(cat => (
+              <button key={cat} className={`emoji-tab ${emojiCategory === cat ? 'active' : ''}`}
+                onClick={() => setEmojiCategory(cat)}>
+                {EMOJI_CATEGORIES[cat][0]}
+              </button>
+            ))}
+            <button className={`emoji-tab ${emojiCategory === 'stickers' ? 'active' : ''}`}
+              onClick={() => setEmojiCategory('stickers')}>
+              🎭
+            </button>
+          </div>
+          <div className="emoji-panel-grid">
+            {(emojiCategory === 'stickers' ? STICKERS : EMOJI_CATEGORIES[emojiCategory] || []).map((emoji, i) => (
+              <button key={i} className="emoji-panel-item" onClick={() => insertEmoji(emoji)}>
+                {emoji}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="msg-input">
         <button className="icon-btn" onClick={() => fileRef.current?.click()} title="Файл">📎</button>
         <input ref={fileRef} type="file" hidden multiple onChange={e => handleFiles(e.target.files)} />
@@ -199,6 +235,10 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
           onChange={handleChange}
           onKeyDown={handleKeyDown}
         />
+
+        <button className="icon-btn" onClick={() => setShowEmoji(!showEmoji)} title="Эмодзи">
+          {showEmoji ? '✕' : '😊'}
+        </button>
 
         {text.trim() ? (
           <button className="send-btn" onClick={handleSend}>➤</button>

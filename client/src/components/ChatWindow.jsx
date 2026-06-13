@@ -4,6 +4,18 @@ import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
 import { formatLastSeen } from '../utils';
 
+function getDateLabel(ts) {
+  const d = new Date(Number(ts));
+  const now = new Date();
+  const today = now.toDateString();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (d.toDateString() === today) return 'Сегодня';
+  if (d.toDateString() === yesterday.toDateString()) return 'Вчера';
+  return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+}
+
 export default function ChatWindow({
   chat, user, messages, onlineUsers, typingUsers,
   onSend, onEdit, onDelete, onReact, onForward, onPin, onBack, onMarkRead,
@@ -164,6 +176,11 @@ export default function ChatWindow({
         {loadingMore && <div className="loading-more">Загрузка...</div>}
         {messages.map((msg, i) => {
           const prev = messages[i - 1];
+          const msgDate = new Date(Number(msg.createdAt)).toDateString();
+          const prevDate = prev ? new Date(Number(prev.createdAt)).toDateString() : null;
+          const showDate = msgDate !== prevDate;
+          const dateLabel = showDate ? getDateLabel(msg.createdAt) : null;
+
           const showSender = chat.type === 'group' && msg.senderId !== user.id &&
             (!prev || prev.senderId !== msg.senderId || prev.type === 'system');
           const showColoredName = chat.type === 'direct' && msg.senderId !== user.id;
@@ -176,9 +193,14 @@ export default function ChatWindow({
             avatarEmoji: msg.senderAvatarEmoji,
           };
           return (
-            <MessageBubble
-              key={msg.id}
-              message={msg}
+            <div key={msg.id}>
+              {showDate && (
+                <div className="date-separator">
+                  <span className="date-separator-text">{dateLabel}</span>
+                </div>
+              )}
+              <MessageBubble
+                message={msg}
               isOwn={msg.senderId === user.id}
               showSender={showSender}
               showColoredName={showColoredName}
@@ -192,6 +214,7 @@ export default function ChatWindow({
               onPin={onPin}
               onOpenProfile={onOpenProfile}
             />
+            </div>
           );
         })}
         {typerNames.length > 0 && (

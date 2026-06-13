@@ -73,4 +73,5 @@ export const api = {
   updateNotifications: (emailNotifications) => request('/users/me/notifications', { method: 'PATCH', body: JSON.stringify({ emailNotifications }) }),
   updateNicknameColor: (color) => request('/users/me/nickname-color', { method: 'PATCH', body: JSON.stringify({ color }) }),
   updateAvatarEmoji: (emoji) => request('/users/me/avatar-emoji', { method: 'PATCH', body: JSON.stringify({ emoji }) }),
+  updateStatus: (status) => request('/users/me/status', { method: 'PATCH', body: JSON.stringify({ status }) }),
 };

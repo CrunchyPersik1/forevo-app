@@ -53,7 +53,8 @@ async function initDB() {
       email_notifications BOOLEAN DEFAULT true,
       nickname_color TEXT DEFAULT NULL,
       is_moderator BOOLEAN DEFAULT false,
-      avatar_emoji TEXT DEFAULT NULL
+      avatar_emoji TEXT DEFAULT NULL,
+      user_status TEXT DEFAULT 'online'
     );
 
     CREATE TABLE IF NOT EXISTS chats (
@@ -146,6 +147,9 @@ async function initDB() {
   }
   if (!userColNames.includes('avatar_emoji')) {
     await pool.query('ALTER TABLE users ADD COLUMN avatar_emoji TEXT DEFAULT NULL');
+  }
+  if (!userColNames.includes('user_status')) {
+    await pool.query("ALTER TABLE users ADD COLUMN user_status TEXT DEFAULT 'online'");
   }
 
   const msgCols = await pool.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'messages'`);

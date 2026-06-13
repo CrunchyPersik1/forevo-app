@@ -190,6 +190,16 @@ router.patch('/me/avatar-emoji', async (req, res) => {
   res.json(publicUser(updated));
 });
 
+router.patch('/me/status', async (req, res) => {
+  const { status } = req.body;
+  const validStatuses = ['online', 'dnd', 'offline'];
+  if (!validStatuses.includes(status)) return res.status(400).json({ error: 'Invalid status' });
+  await db.run('UPDATE users SET user_status = $1 WHERE id = $2', [status, req.userId]);
+  const updated = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
+  emitUserUpdated(req.app.locals.io, updated);
+  res.json(publicUser(updated));
+});
+
 router.get('/search', async (req, res) => {
   const q = (req.query.q || '').trim().toLowerCase();
   if (!q) return res.json([]);

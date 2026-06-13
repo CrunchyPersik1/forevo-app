@@ -305,6 +305,30 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
                 }}
               />
             </label>
+
+            <label>Статус</label>
+            <div className="status-selector">
+              {[
+                { id: 'online', label: '🟢 В сети', dot: 'online' },
+                { id: 'dnd', label: '🔴 Не беспокоить', dot: 'dnd' },
+                { id: 'offline', label: '⚪ Оффлайн', dot: 'offline' },
+              ].map(s => (
+                <button
+                  key={s.id}
+                  className={`status-option ${avatarUser.userStatus === s.id ? 'active' : ''}`}
+                  onClick={async () => {
+                    try {
+                      const updated = await api.updateStatus(s.id);
+                      setAvatarUser(updated);
+                      await onSave(updated, { silent: true });
+                    } catch (e) { alert(e.message); }
+                  }}
+                >
+                  <span className={`status-dot ${s.dot}`} />
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

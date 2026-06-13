@@ -33,6 +33,7 @@ export function publicUser(row, extras = {}) {
     nicknameColor: row.nickname_color ?? null,
     isModerator: row.is_moderator ?? false,
     avatarEmoji: row.avatar_emoji ?? null,
+    userStatus: row.user_status ?? 'online',
     ...extras,
   };
 }

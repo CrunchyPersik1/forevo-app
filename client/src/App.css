@@ -1485,6 +1485,107 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* === Emoji Panel === */
+.emoji-panel {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  max-height: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.emoji-panel-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.emoji-tab {
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 18px;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.emoji-tab:hover { background: var(--bg-hover); }
+.emoji-tab.active { background: var(--accent-subtle); }
+
+.emoji-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  padding: 8px 12px;
+  overflow-y: auto;
+}
+
+.emoji-panel-item {
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, transform 0.15s;
+}
+
+.emoji-panel-item:hover {
+  background: var(--bg-hover);
+  transform: scale(1.2);
+}
+
+/* === Date Separator === */
+.date-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.date-separator-text {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+/* === User Status === */
+.status-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.status-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.status-option:hover { border-color: var(--accent); }
+.status-option.active { border-color: var(--accent); background: var(--accent-subtle); }
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-dot.online { background: var(--success); }
+.status-dot.dnd { background: var(--danger); }
+.status-dot.offline { background: var(--text-muted); }
+
 /* === Smooth Transitions === */
 .sidebar, .main, .modal, .msg-bubble, .chat-item, .send-btn {
   transition: background-color 0.2s ease, transform 0.15s ease;
