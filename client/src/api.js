@@ -83,4 +83,5 @@ export const api = {
   getMyNfts: () => request('/market/my-nfts'),
   getMyThemes: () => request('/market/my-themes'),
   getMarketBalance: () => request('/market/balance'),
+  giftNft: (toUserId, nftId, message) => request('/market/gift', { method: 'POST', body: JSON.stringify({ toUserId, nftId, message }) }),
 };

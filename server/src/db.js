@@ -221,10 +221,22 @@ async function initDB() {
 
   const crunchy = await db.get('SELECT id FROM users WHERE username = $1', ['crunchypersik']);
   if (crunchy) {
-    await db.run('UPDATE users SET is_moderator = true, foreiki = 500 WHERE id = $1', [crunchy.id]);
+    await db.run('UPDATE users SET is_moderator = true, foreiki = 1000 WHERE id = $1', [crunchy.id]);
     const crunchyNfts = await db.get('SELECT COUNT(*)::int as count FROM user_nfts WHERE user_id = $1', [crunchy.id]);
     if (crunchyNfts && crunchyNfts.count === 0) {
-      const starterNfts = ['nft-diamond', 'nft-fire', 'nft-star', 'nft-crown', 'nft-rocket', 'nft-dragon'];
+      const starterNfts = [
+        'nft-diamond', 'nft-fire', 'nft-star', 'nft-crown', 'nft-rocket', 'nft-dragon',
+        'nft-unicorn', 'nft-galaxy', 'nft-phoenix', 'nft-moon', 'nft-sun', 'nft-bolt',
+        'nft-snow', 'nft-rainbow', 'nft-heart',
+        'nft-diamond', 'nft-fire', 'nft-star', 'nft-crown', 'nft-rocket', 'nft-dragon',
+        'nft-unicorn', 'nft-galaxy', 'nft-phoenix', 'nft-moon', 'nft-sun', 'nft-bolt',
+        'nft-snow', 'nft-rainbow', 'nft-heart',
+        'nft-diamond', 'nft-fire', 'nft-star', 'nft-crown', 'nft-rocket', 'nft-dragon',
+        'nft-unicorn', 'nft-galaxy', 'nft-phoenix', 'nft-moon', 'nft-sun', 'nft-bolt',
+        'nft-snow', 'nft-rainbow', 'nft-heart',
+        'nft-diamond', 'nft-fire', 'nft-star', 'nft-crown', 'nft-rocket', 'nft-dragon',
+        'nft-unicorn', 'nft-galaxy',
+      ];
       for (const nftId of starterNfts) {
         await db.run('INSERT INTO user_nfts (id, user_id, nft_id, acquired_at) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING',
           [uuid(), crunchy.id, nftId, Date.now()]);

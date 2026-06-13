@@ -124,4 +124,32 @@ router.get('/balance', async (req, res) => {
   }
 });
 
+router.post('/gift', async (req, res) => {
+  try {
+    const { toUserId, nftId, message } = req.body;
+    if (!toUserId || !nftId) return res.status(400).json({ error: 'toUserId and nftId required' });
+
+    const user = await db.get('SELECT is_moderator FROM users WHERE id = $1', [req.userId]);
+    if (!user || !user.is_moderator) return res.status(403).json({ error: 'Only moderators can gift NFTs' });
+
+    const nft = await db.get('SELECT * FROM nft_items WHERE id = $1', [nftId]);
+    if (!nft) return res.status(404).json({ error: 'NFT not found' });
+
+    const owned = await db.get('SELECT 1 FROM user_nfts WHERE user_id = $1 AND nft_id = $2', [req.userId, nftId]);
+    if (!owned) return res.status(403).json({ error: 'You don\'t own this NFT' });
+
+    const alreadyHas = await db.get('SELECT 1 FROM user_nfts WHERE user_id = $1 AND nft_id = $2', [toUserId, nftId]);
+    if (alreadyHas) return res.status(409).json({ error: 'User already has this NFT' });
+
+    await db.run('DELETE FROM user_nfts WHERE user_id = $1 AND nft_id = $2', [req.userId, nftId]);
+    await db.run('INSERT INTO user_nfts (id, user_id, nft_id, acquired_at, gift_message) VALUES ($1, $2, $3, $4, $5)',
+      [uuid(), toUserId, nftId, Date.now(), message || null]);
+
+    res.json({ ok: true, nft });
+  } catch (err) {
+    console.error('POST /market/gift error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;
