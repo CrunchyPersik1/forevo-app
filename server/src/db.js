@@ -202,6 +202,12 @@ async function initDB() {
     await pool.query(`ALTER TABLE users ADD COLUMN badges TEXT[] DEFAULT '{}'`);
   }
 
+  const themeCols = await pool.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'profile_themes'`);
+  const themeColNames = themeCols.rows.map(r => r.column_name);
+  if (!themeColNames.includes('description')) {
+    await pool.query("ALTER TABLE profile_themes ADD COLUMN description TEXT DEFAULT ''");
+  }
+
   const msgCols = await pool.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'messages'`);
   const msgColNames = msgCols.rows.map(r => r.column_name);
   if (!msgColNames.includes('forwarded_from_chat_id')) {
