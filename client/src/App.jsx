@@ -39,7 +39,7 @@ export default function App() {
   const [showGroupSettings, setShowGroupSettings] = useState(false);
   const [mobileShowChat, setMobileShowChat] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [theme, setTheme] = useState(() => localStorage.getItem('forevo-theme') || 'dark');
+  const [theme, setTheme] = useState(() => localStorage.getItem('forevo-theme') || 'dark-purple');
   const [forwardingMessage, setForwardingMessage] = useState(null);
 
   const getWallpaper = (chatId) => localStorage.getItem(`forevo-wallpaper-${chatId}`) || null;
@@ -104,7 +104,13 @@ export default function App() {
     }
   };
 
-  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
+  const toggleTheme = () => {
+    const themes = ['dark-purple', 'dark-blue', 'dark-green', 'light-purple', 'light-blue', 'light-green'];
+    const idx = themes.indexOf(theme);
+    setTheme(themes[(idx + 1) % themes.length]);
+  };
+
+  const themeIcon = theme.startsWith('dark') ? '🌙' : '☀️';
 
   const refreshDisplay = useCallback((chatId) => {
     if (activeChatIdRef.current === chatId) {
@@ -509,7 +515,7 @@ export default function App() {
           onNewChat={() => setShowSearch(true)}
           onNewGroup={() => setShowGroup(true)}
           onProfile={() => setShowProfile(true)}
-          theme={theme}
+          themeIcon={themeIcon}
           onToggleTheme={toggleTheme}
         />
       </div>
@@ -570,6 +576,8 @@ export default function App() {
           onSave={handleProfileSave}
           onLogout={handleLogout}
           onClose={() => setShowProfile(false)}
+          theme={theme}
+          onSetTheme={setTheme}
         />
       )}
       {viewProfileId && (

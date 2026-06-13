@@ -1,13 +1,13 @@
 import Avatar from './Avatar';
 import { formatTime } from '../utils';
 
-export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewChat, onNewGroup, onProfile, theme, onToggleTheme }) {
+export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewChat, onNewGroup, onProfile, themeIcon, onToggleTheme }) {
   return (
     <div className="chat-list">
       <div className="chat-list-header">
         <h2>Чаты</h2>
         <div className="chat-list-actions">
-          <button className="icon-btn" onClick={onToggleTheme} title="Сменить тему">{theme === 'dark' ? '☀️' : '🌙'}</button>
+          <button className="icon-btn" onClick={onToggleTheme} title="Сменить тему">{themeIcon}</button>
           <button className="icon-btn" onClick={onNewGroup} title="Новая группа">👥</button>
           <button className="icon-btn" onClick={onNewChat} title="Новый чат">✏️</button>
           <button className="icon-btn" onClick={onProfile} title="Профиль">⚙️</button>
@@ -103,6 +103,8 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
           </div>
         </div>
       </div>
+
+      <div className="chat-list-version">Forevo v1.1.0</div>
     </div>
   );
 }

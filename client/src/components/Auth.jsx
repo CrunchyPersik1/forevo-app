@@ -30,7 +30,7 @@ export default function Auth({ onAuth }) {
     <div className="auth-screen">
       <div className="auth-card">
         <div className="auth-logo">
-          <div className="auth-logo-icon">💬</div>
+          <span className="auth-logo-icon">💬</span>
           <h1>Forevo</h1>
           <p>Быстрый и красивый мессенджер</p>
         </div>
