@@ -36,6 +36,24 @@ const SOUNDS = [
   { id: 5, name: 'Мягкий', freq: 440 },
 ];
 
+export function playProfileSound(soundId) {
+  const sound = SOUNDS.find(s => s.id === soundId);
+  if (!sound || !sound.freq) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = sound.freq;
+    osc.type = 'sine';
+    gain.gain.value = 0.12;
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.stop(ctx.currentTime + 0.5);
+  } catch {}
+}
+
 export default function Profile({ user, onSave, onLogout, onClose, theme, onSetTheme }) {
   const [screen, setScreen] = useState('view');
   const [displayName, setDisplayName] = useState(user.displayName);
@@ -56,6 +74,10 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
       api.getMyNfts().then(setMyNfts).catch(() => {});
     }
   }, [screen]);
+
+  useEffect(() => {
+    if (user.profileSound) playProfileSound(user.profileSound);
+  }, []);
 
   const handleCheckUsername = async () => {
     const err = validateUsername(username);
@@ -129,62 +151,79 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
     }
   };
 
+  const gradientObj = GRADIENTS.find(g => g.id === avatarUser.profileGradient);
+
   if (screen === 'view') {
     return (
-      <div className="modal-overlay" onClick={onClose}>
-        <div className="modal profile-modal" onClick={e => e.stopPropagation()}>
-          <div className="modal-header">
-            <h3>Профиль</h3>
-            <button onClick={onClose}>✕</button>
-          </div>
+      <>
+        {showMarket && <Market user={user} onClose={() => setShowMarket(false)} onUpdate={onSave} />}
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal profile-modal" onClick={e => e.stopPropagation()} style={{ position: 'relative', overflow: 'hidden' }}>
+            {gradientObj && <div className="profile-gradient" style={{ background: gradientObj.colors }} />}
 
-          <div className="profile-avatar-section">
-            <Avatar user={avatarUser} size={96} lazy={false} />
-            <h3 style={{ marginTop: 12, fontSize: 20, fontWeight: 600 }}>{avatarUser.displayName}</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>@{avatarUser.username}</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
-              <span style={{ fontSize: 16 }}>🪙</span>
-              <span style={{ fontWeight: 600, color: '#ffd700' }}>{avatarUser.foreiki || 0} Фориков</span>
+            <div className="modal-header" style={{ position: 'relative', zIndex: 1 }}>
+              <h3>Профиль</h3>
+              <button onClick={onClose}>✕</button>
             </div>
-            {avatarUser.badges?.length > 0 && (
-              <div className="badge-list">
-                {avatarUser.badges.map((b, i) => (
-                  <span key={i} className="profile-badge">{b}</span>
-                ))}
+
+            <div className="profile-avatar-section" style={{ position: 'relative', zIndex: 1 }}>
+              <Avatar user={avatarUser} size={96} lazy={false} />
+              <h3 style={{ marginTop: 12, fontSize: 20, fontWeight: 600 }}>{avatarUser.displayName}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>@{avatarUser.username}</p>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+                <span className={`status-dot ${avatarUser.userStatus || 'online'}`} style={{ width: 10, height: 10 }} />
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                  {avatarUser.userStatus === 'dnd' ? 'Не беспокоить' : avatarUser.userStatus === 'offline' ? 'Оффлайн' : 'В сети'}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+                <span style={{ fontSize: 16 }}>🪙</span>
+                <span style={{ fontWeight: 600, color: '#ffd700' }}>{avatarUser.foreiki || 0} Фориков</span>
+              </div>
+
+              {avatarUser.badges?.length > 0 && (
+                <div className="badge-list">
+                  {avatarUser.badges.map((b, i) => (
+                    <span key={i} className="profile-badge">{b}</span>
+                  ))}
+                </div>
+              )}
+
+              <p className="profile-joined">На сайте с {formatRegistrationDate(user.createdAt)}</p>
+            </div>
+
+            {myNfts.length > 0 && (
+              <div className="nft-collection" style={{ padding: '0 20px', position: 'relative', zIndex: 1 }}>
+                <h4>Коллекция NFT ({myNfts.length})</h4>
+                <div className="nft-scroll">
+                  {myNfts.map(nft => (
+                    <div key={nft.id} className="nft-card">
+                      <div className="nft-card-emoji">{nft.emoji}</div>
+                      <div className="nft-card-name">{nft.name}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
-            <p className="profile-joined">На сайте с {formatRegistrationDate(user.createdAt)}</p>
-          </div>
 
-          {myNfts.length > 0 && (
-            <div className="nft-collection" style={{ padding: '0 20px' }}>
-              <h4>Коллекция NFT ({myNfts.length})</h4>
-              <div className="nft-scroll">
-                {myNfts.map(nft => (
-                  <div key={nft.id} className="nft-card">
-                    <div className="nft-card-emoji">{nft.emoji}</div>
-                    <div className="nft-card-name">{nft.name}</div>
-                  </div>
-                ))}
-              </div>
+            <div style={{ padding: '12px 20px', position: 'relative', zIndex: 1 }}>
+              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8 }} onClick={() => setScreen('edit')}>
+                ✏️ Изменить профиль
+              </button>
+              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} onClick={() => setScreen('custom')}>
+                🎨 Кастомизация
+              </button>
+              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'linear-gradient(135deg, #ffd700, #ff8c00)', color: '#1a1a1a' }} onClick={() => setShowMarket(true)}>
+                🏪 Рынок
+              </button>
             </div>
-          )}
 
-          <div style={{ padding: '12px 20px' }}>
-            <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8 }} onClick={() => setScreen('edit')}>
-              ✏️ Изменить профиль
-            </button>
-            <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} onClick={() => setScreen('custom')}>
-              🎨 Кастомизация
-            </button>
-            <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'linear-gradient(135deg, #ffd700, #ff8c00)', color: '#1a1a1a' }} onClick={() => setShowMarket(true)}>
-              🏪 Рынок
-            </button>
+            <button className="logout-btn" onClick={onLogout}>Выйти из аккаунта</button>
           </div>
-
-          <button className="logout-btn" onClick={onLogout}>Выйти из аккаунта</button>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -281,6 +320,66 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
               ))}
             </div>
 
+            <label>Фон профиля (градиент)</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
+              {GRADIENTS.map(g => (
+                <button key={g.id}
+                  style={{
+                    height: 40,
+                    borderRadius: 8,
+                    background: g.colors,
+                    border: avatarUser.profileGradient === g.id ? '3px solid var(--text-primary)' : '3px solid transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                  onClick={async () => {
+                    try {
+                      const updated = await api.updateGradient(g.id);
+                      setAvatarUser(updated);
+                      await onSave(updated, { silent: true });
+                    } catch (e) { alert(e.message); }
+                  }}
+                />
+              ))}
+              {avatarUser.profileGradient && (
+                <button style={{
+                  height: 40,
+                  borderRadius: 8,
+                  background: 'var(--bg-tertiary)',
+                  border: '2px solid var(--border)',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  color: 'var(--text-secondary)',
+                }} onClick={async () => {
+                  try {
+                    const updated = await api.updateGradient(null);
+                    setAvatarUser(updated);
+                    await onSave(updated, { silent: true });
+                  } catch {}
+                }}>✕</button>
+              )}
+            </div>
+
+            <label>Звук профиля</label>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+              {SOUNDS.map(s => (
+                <button key={s.id}
+                  className={`sound-btn ${avatarUser.profileSound === s.id ? 'active' : ''}`}
+                  style={avatarUser.profileSound === s.id ? { borderColor: 'var(--accent)', background: 'var(--accent-subtle)' } : undefined}
+                  onClick={async () => {
+                    if (s.freq) playProfileSound(s.id);
+                    try {
+                      const updated = await api.updateSound(s.id);
+                      setAvatarUser(updated);
+                      await onSave(updated, { silent: true });
+                    } catch (e) { alert(e.message); }
+                  }}
+                >
+                  {s.name}
+                </button>
+              ))}
+            </div>
+
             <label>Цвет ника</label>
             <div className="color-picker-row">
               {['#ff6b6b', '#ffa502', '#ffd93d', '#6bcb77', '#4d96ff', '#6c5ce7', '#e84393', '#00cec9'].map(c => (
@@ -348,21 +447,6 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
               )}
             </div>
 
-            <label className="toggle-row">
-              <span>Email-уведомления</span>
-              <input
-                type="checkbox"
-                checked={avatarUser.emailNotifications !== false}
-                onChange={async (e) => {
-                  try {
-                    const updated = await api.updateNotifications(e.target.checked);
-                    setAvatarUser(updated);
-                    await onSave(updated, { silent: true });
-                  } catch {}
-                }}
-              />
-            </label>
-
             <label>Статус</label>
             <div className="status-selector">
               {[
@@ -387,143 +471,25 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
               ))}
             </div>
 
-            <label>Фон профиля (градиент)</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
-              {GRADIENTS.map(g => (
-                <button key={g.id}
-                  style={{
-                    height: 40,
-                    borderRadius: 8,
-                    background: g.colors,
-                    border: avatarUser.profileGradient === g.id ? '3px solid var(--text-primary)' : '3px solid transparent',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                  onClick={async () => {
-                    try {
-                      const updated = await api.updateGradient(g.id);
-                      setAvatarUser(updated);
-                      await onSave(updated, { silent: true });
-                    } catch (e) { alert(e.message); }
-                  }}
-                />
-              ))}
-              {avatarUser.profileGradient && (
-                <button style={{
-                  height: 40,
-                  borderRadius: 8,
-                  background: 'var(--bg-tertiary)',
-                  border: '2px solid var(--border)',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  color: 'var(--text-secondary)',
-                }} onClick={async () => {
+            <label className="toggle-row">
+              <span>Email-уведомления</span>
+              <input
+                type="checkbox"
+                checked={avatarUser.emailNotifications !== false}
+                onChange={async (e) => {
                   try {
-                    const updated = await api.updateGradient(null);
+                    const updated = await api.updateNotifications(e.target.checked);
                     setAvatarUser(updated);
                     await onSave(updated, { silent: true });
                   } catch {}
-                }}>✕</button>
-              )}
-            </div>
-
-            <label>Звук профиля</label>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-              {SOUNDS.map(s => (
-                <button key={s.id}
-                  className={`sound-btn ${avatarUser.profileSound === s.id ? 'active' : ''}`}
-                  style={avatarUser.profileSound === s.id ? { borderColor: 'var(--accent)', background: 'var(--accent-subtle)' } : undefined}
-                  onClick={async () => {
-                    if (s.freq) {
-                      try {
-                        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                        const osc = ctx.createOscillator();
-                        const gain = ctx.createGain();
-                        osc.connect(gain);
-                        gain.connect(ctx.destination);
-                        osc.frequency.value = s.freq;
-                        gain.gain.value = 0.15;
-                        osc.start();
-                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-                        osc.stop(ctx.currentTime + 0.5);
-                      } catch {}
-                    }
-                    try {
-                      const updated = await api.updateSound(s.id);
-                      setAvatarUser(updated);
-                      await onSave(updated, { silent: true });
-                    } catch (e) { alert(e.message); }
-                  }}
-                >
-                  {s.name}
-                </button>
-              ))}
-            </div>
+                }}
+              />
+            </label>
           </div>
         </div>
       </div>
     );
   }
 
-  return (
-    <>
-      {showMarket && <Market user={user} onClose={() => setShowMarket(false)} onUpdate={onSave} />}
-      {screen === 'view' && (
-        <div className="modal-overlay" onClick={onClose}>
-          <div className="modal profile-modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Профиль</h3>
-              <button onClick={onClose}>✕</button>
-            </div>
-
-            <div className="profile-avatar-section">
-              <Avatar user={avatarUser} size={96} lazy={false} />
-              <h3 style={{ marginTop: 12, fontSize: 20, fontWeight: 600 }}>{avatarUser.displayName}</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>@{avatarUser.username}</p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
-                <span style={{ fontSize: 16 }}>🪙</span>
-                <span style={{ fontWeight: 600, color: '#ffd700' }}>{avatarUser.foreiki || 0} Фориков</span>
-              </div>
-              {avatarUser.badges?.length > 0 && (
-                <div className="badge-list">
-                  {avatarUser.badges.map((b, i) => (
-                    <span key={i} className="profile-badge">{b}</span>
-                  ))}
-                </div>
-              )}
-              <p className="profile-joined">На сайте с {formatRegistrationDate(user.createdAt)}</p>
-            </div>
-
-            {myNfts.length > 0 && (
-              <div className="nft-collection" style={{ padding: '0 20px' }}>
-                <h4>Коллекция NFT ({myNfts.length})</h4>
-                <div className="nft-scroll">
-                  {myNfts.map(nft => (
-                    <div key={nft.id} className="nft-card">
-                      <div className="nft-card-emoji">{nft.emoji}</div>
-                      <div className="nft-card-name">{nft.name}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div style={{ padding: '12px 20px' }}>
-              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8 }} onClick={() => setScreen('edit')}>
-                ✏️ Изменить профиль
-              </button>
-              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} onClick={() => setScreen('custom')}>
-                🎨 Кастомизация
-              </button>
-              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'linear-gradient(135deg, #ffd700, #ff8c00)', color: '#1a1a1a' }} onClick={() => setShowMarket(true)}>
-                🏪 Рынок
-              </button>
-            </div>
-
-            <button className="logout-btn" onClick={onLogout}>Выйти из аккаунта</button>
-          </div>
-        </div>
-      )}
-    </>
-  );
+  return null;
 }

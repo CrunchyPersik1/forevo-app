@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Avatar from './Avatar';
 import { api } from '../api';
 import { formatLastSeen, formatRegistrationDate } from '../utils';
+import { playProfileSound } from './Profile';
 
 export default function UserProfile({
   userId, currentUser, onlineUsers, chats, onClose, onOpenChat, onBlockChange,
@@ -20,7 +21,10 @@ export default function UserProfile({
   useEffect(() => {
     setLoading(true);
     api.getUser(userId)
-      .then(setProfile)
+      .then((p) => {
+        setProfile(p);
+        if (p.profileSound) playProfileSound(p.profileSound);
+      })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, [userId]);
