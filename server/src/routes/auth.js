@@ -56,7 +56,7 @@ router.post('/login', async (req, res) => {
     );
 
     if (!user || !bcrypt.compareSync(password, user.password_hash)) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(400).json({ error: 'Неверный логин или пароль' });
     }
 
     const token = signToken(user.id);
