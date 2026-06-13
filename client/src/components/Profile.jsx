@@ -159,67 +159,66 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
           {gradientObj && <div className="profile-gradient" style={{ background: gradientObj.colors }} />}
 
           <div className="modal-header" style={{ position: 'relative', zIndex: 1 }}>
-              <h3>Профиль</h3>
-              <button onClick={onClose}>✕</button>
+            <h3>Профиль</h3>
+            <button onClick={onClose}>✕</button>
+          </div>
+
+          <div className="profile-avatar-section" style={{ position: 'relative', zIndex: 1 }}>
+            <Avatar user={avatarUser} size={96} lazy={false} />
+            <h3 style={{ marginTop: 12, fontSize: 20, fontWeight: 600 }}>{avatarUser.displayName}</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>@{avatarUser.username}</p>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+              <span className={`status-dot ${avatarUser.userStatus || 'online'}`} style={{ width: 10, height: 10 }} />
+              <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                {avatarUser.userStatus === 'dnd' ? 'Не беспокоить' : avatarUser.userStatus === 'offline' ? 'Оффлайн' : 'В сети'}
+              </span>
             </div>
 
-            <div className="profile-avatar-section" style={{ position: 'relative', zIndex: 1 }}>
-              <Avatar user={avatarUser} size={96} lazy={false} />
-              <h3 style={{ marginTop: 12, fontSize: 20, fontWeight: 600 }}>{avatarUser.displayName}</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>@{avatarUser.username}</p>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
-                <span className={`status-dot ${avatarUser.userStatus || 'online'}`} style={{ width: 10, height: 10 }} />
-                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-                  {avatarUser.userStatus === 'dnd' ? 'Не беспокоить' : avatarUser.userStatus === 'offline' ? 'Оффлайн' : 'В сети'}
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
-                <span style={{ fontSize: 16 }}>🪙</span>
-                <span style={{ fontWeight: 600, color: '#ffd700' }}>{avatarUser.foreiki || 0} Фориков</span>
-              </div>
-
-              {avatarUser.badges?.length > 0 && (
-                <div className="badge-list">
-                  {avatarUser.badges.map((b, i) => (
-                    <span key={i} className="profile-badge">{b}</span>
-                  ))}
-                </div>
-              )}
-
-              <p className="profile-joined">На сайте с {formatRegistrationDate(user.createdAt)}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+              <span style={{ fontSize: 16 }}>🪙</span>
+              <span style={{ fontWeight: 600, color: '#ffd700' }}>{avatarUser.foreiki || 0} Фориков</span>
             </div>
 
-            <div style={{ padding: '12px 20px', position: 'relative', zIndex: 1 }}>
-              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8 }} onClick={() => setScreen('edit')}>
-                ✏️ Изменить профиль
-              </button>
-              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} onClick={() => setScreen('custom')}>
-                🎨 Кастомизация
-              </button>
-              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'linear-gradient(135deg, #ffd700, #ff8c00)', color: '#1a1a1a' }} onClick={onShowMarket}>
-                🏪 Рынок
-              </button>
-            </div>
-
-            <button className="logout-btn" onClick={onLogout}>Выйти из аккаунта</button>
-
-            {myNfts.length > 0 && (
-              <div className="nft-collection" style={{ padding: '0 20px 16px', position: 'relative', zIndex: 1 }}>
-                <h4>Коллекция ({myNfts.length})</h4>
-                <div className="nft-scroll">
-                  {myNfts.map(nft => (
-                    <div key={nft.id} className="nft-card">
-                      <div className="nft-card-emoji">{nft.emoji}</div>
-                      <div className="nft-card-name">{nft.name}</div>
-                      <div className={`nft-card-rarity ${nft.rarity}`}>{nft.rarity}</div>
-                    </div>
-                  ))}
-                </div>
+            {avatarUser.badges?.length > 0 && (
+              <div className="badge-list">
+                {avatarUser.badges.map((b, i) => (
+                  <span key={i} className="profile-badge">{b}</span>
+                ))}
               </div>
             )}
+
+            <p className="profile-joined">На сайте с {formatRegistrationDate(user.createdAt)}</p>
           </div>
+
+          <div style={{ padding: '12px 20px', position: 'relative', zIndex: 1 }}>
+            <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8 }} onClick={() => setScreen('edit')}>
+              ✏️ Изменить профиль
+            </button>
+            <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} onClick={() => setScreen('custom')}>
+              🎨 Кастомизация
+            </button>
+            <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'linear-gradient(135deg, #ffd700, #ff8c00)', color: '#1a1a1a' }} onClick={onShowMarket}>
+              🏪 Рынок
+            </button>
+          </div>
+
+          <button className="logout-btn" onClick={onLogout}>Выйти из аккаунта</button>
+
+          {myNfts.length > 0 && (
+            <div className="nft-collection" style={{ padding: '0 20px 16px', position: 'relative', zIndex: 1 }}>
+              <h4>Коллекция ({myNfts.length})</h4>
+              <div className="nft-scroll">
+                {myNfts.map(nft => (
+                  <div key={nft.id} className="nft-card">
+                    <div className="nft-card-emoji">{nft.emoji}</div>
+                    <div className="nft-card-name">{nft.name}</div>
+                    <div className={`nft-card-rarity ${nft.rarity}`}>{nft.rarity}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
