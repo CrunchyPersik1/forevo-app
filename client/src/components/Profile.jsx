@@ -194,20 +194,6 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
               <p className="profile-joined">На сайте с {formatRegistrationDate(user.createdAt)}</p>
             </div>
 
-            {myNfts.length > 0 && (
-              <div className="nft-collection" style={{ padding: '0 20px', position: 'relative', zIndex: 1 }}>
-                <h4>Коллекция NFT ({myNfts.length})</h4>
-                <div className="nft-scroll">
-                  {myNfts.map(nft => (
-                    <div key={nft.id} className="nft-card">
-                      <div className="nft-card-emoji">{nft.emoji}</div>
-                      <div className="nft-card-name">{nft.name}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             <div style={{ padding: '12px 20px', position: 'relative', zIndex: 1 }}>
               <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8 }} onClick={() => setScreen('edit')}>
                 ✏️ Изменить профиль
@@ -221,6 +207,21 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
             </div>
 
             <button className="logout-btn" onClick={onLogout}>Выйти из аккаунта</button>
+
+            {myNfts.length > 0 && (
+              <div className="nft-collection" style={{ padding: '0 20px 16px', position: 'relative', zIndex: 1 }}>
+                <h4>Коллекция ({myNfts.length})</h4>
+                <div className="nft-scroll">
+                  {myNfts.map(nft => (
+                    <div key={nft.id} className="nft-card">
+                      <div className="nft-card-emoji">{nft.emoji}</div>
+                      <div className="nft-card-name">{nft.name}</div>
+                      <div className={`nft-card-rarity ${nft.rarity}`}>{nft.rarity}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </>

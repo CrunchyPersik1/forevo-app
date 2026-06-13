@@ -88,7 +88,7 @@ export default function Market({ user, onClose, onUpdate }) {
               <div key={nft.id} className="market-card">
                 <div className="market-card-emoji">{nft.emoji}</div>
                 <div className="market-card-name">{nft.name}</div>
-                <div className="market-card-rarity" style={{ color: RARITY_COLORS[nft.rarity] }}>
+                <div className={`market-card-rarity`} style={{ color: RARITY_COLORS[nft.rarity] }}>
                   {RARITY_LABELS[nft.rarity]}
                 </div>
                 <div className="market-card-desc">{nft.description}</div>

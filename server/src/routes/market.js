@@ -11,7 +11,7 @@ router.get('/nfts', async (req, res) => {
   try {
     const items = await db.all('SELECT * FROM nft_items ORDER BY price ASC');
     const owned = await db.all('SELECT nft_id FROM user_nfts WHERE user_id = $1', [req.userId]);
-    const ownedSet = new Set(owned.map(o => nft_id));
+    const ownedSet = new Set(owned.map(o => o.nft_id));
     const result = items.map(item => ({
       ...item,
       owned: ownedSet.has(item.id),

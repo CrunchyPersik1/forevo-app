@@ -248,21 +248,21 @@ async function initDB() {
   const nftCount = await db.get('SELECT COUNT(*)::int as count FROM nft_items');
   if (nftCount && nftCount.count === 0) {
     const nfts = [
-      ['nft-diamond', '💎', 'Диамант', 'nft', 'common', 10, 'Блестящий камешек'],
-      ['nft-fire', '🔥', 'Пламя', 'nft', 'common', 10, 'Горячий огонёк'],
-      ['nft-star', '⭐', 'Звезда', 'nft', 'common', 10, 'Сияющая звёздочка'],
-      ['nft-heart', '❤️', 'Сердце', 'nft', 'common', 15, 'Красное сердечко'],
-      ['nft-crown', '👑', 'Корона', 'nft', 'rare', 30, 'Корона для короля'],
-      ['nft-rocket', '🚀', 'Ракета', 'nft', 'rare', 30, 'В космос!'],
-      ['nft-unicorn', '🦄', 'Единорог', 'nft', 'rare', 35, 'Волшебное создание'],
-      ['nft-galaxy', '🌌', 'Галактика', 'nft', 'epic', 60, 'Бесконечный космос'],
-      ['nft-phoenix', '🔥', 'Феникс', 'nft', 'epic', 70, 'Возрождение из пепла'],
-      ['nft-dragon', '🐉', 'Дракон', 'nft', 'legendary', 150, 'Древний дракон'],
-      ['nft-moon', '🌙', 'Луна', 'nft', 'common', 10, 'Ночная луна'],
-      ['nft-sun', '☀️', 'Солнце', 'nft', 'common', 10, 'Яркое солнце'],
-      ['nft-bolt', '⚡', 'Молния', 'nft', 'rare', 25, 'Сила природы'],
-      ['nft-snow', '❄️', 'Снежинка', 'nft', 'common', 10, 'Зимняя красавица'],
-      ['nft-rainbow', '🌈', 'Радуга', 'nft', 'rare', 40, 'Цвета радуги'],
+      ['nft-aurora', '🌌', 'Аврора', 'nft', 'common', 15, 'Северное сияние'],
+      ['nft-ember', '🔮', 'Пламя Души', 'nft', 'common', 15, 'Тёплый свет внутри'],
+      ['nft-cipher', '🔐', 'Шифр', 'nft', 'common', 15, 'Закодированная тайна'],
+      ['nft-void', '🕳️', 'Бездна', 'nft', 'common', 20, 'Тьма на краю мироздания'],
+      ['nft-echo', '💫', 'Эхо', 'nft', 'rare', 35, 'Отзвук далёкой галактики'],
+      ['nft-prism', '🔷', 'Призма', 'nft', 'rare', 40, 'Рассеивает свет на спектр'],
+      ['nft-nova', '💥', 'Нова', 'nft', 'rare', 45, 'Взрыв новой звезды'],
+      ['nft-spectrum', '🌈', 'Спектр', 'nft', 'rare', 40, 'Полная палитра вселенной'],
+      ['nft-eclipse', '🌑', 'Затмение', 'nft', 'epic', 75, 'Луна закрыла солнце'],
+      ['nft-phantom', '👻', 'Фантом', 'nft', 'epic', 80, 'Призрак прошлого века'],
+      ['nft-zenith', '⛰️', 'Зенит', 'nft', 'epic', 85, 'Вершина мироздания'],
+      ['nft-singularity', '🕳️', 'Сингулярность', 'nft', 'legendary', 150, 'Точка без возврата'],
+      ['nft-leviathan', '🐉', 'Левиафан', 'nft', 'legendary', 180, 'Древний морской владыка'],
+      ['nft-chronos', '⏳', 'Хронос', 'nft', 'legendary', 200, 'Повелитель времени'],
+      ['nft-omega', '🔴', 'Омега', 'nft', 'legendary', 250, 'Последняя точка пути'],
     ];
     for (const [id, emoji, name, cat, rarity, price, desc] of nfts) {
       await db.run('INSERT INTO nft_items (id, name, emoji, category, rarity, price, description) VALUES ($1,$2,$3,$4,$5,$6,$7)', [id, name, emoji, cat, rarity, price, desc]);
