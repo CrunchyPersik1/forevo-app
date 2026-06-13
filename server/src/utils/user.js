@@ -34,6 +34,10 @@ export function publicUser(row, extras = {}) {
     isModerator: row.is_moderator ?? false,
     avatarEmoji: row.avatar_emoji ?? null,
     userStatus: row.user_status ?? 'online',
+    foreiki: row.foreiki ?? 0,
+    profileGradient: row.profile_gradient ?? null,
+    profileSound: row.profile_sound ?? 0,
+    badges: row.badges ?? [],
     ...extras,
   };
 }

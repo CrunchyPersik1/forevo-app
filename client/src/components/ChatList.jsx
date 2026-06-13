@@ -104,7 +104,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
         </div>
       </div>
 
-      <div className="chat-list-version">Forevo v1.1.0</div>
+      <div className="chat-list-version">Forevo v1.2.0</div>
     </div>
   );
 }

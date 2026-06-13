@@ -200,6 +200,21 @@ router.patch('/me/status', async (req, res) => {
   res.json(publicUser(updated));
 });
 
+router.patch('/me/gradient', async (req, res) => {
+  const { gradient } = req.body;
+  await db.run('UPDATE users SET profile_gradient = $1 WHERE id = $2', [gradient || null, req.userId]);
+  const updated = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
+  emitUserUpdated(req.app.locals.io, updated);
+  res.json(publicUser(updated));
+});
+
+router.patch('/me/sound', async (req, res) => {
+  const { sound } = req.body;
+  await db.run('UPDATE users SET profile_sound = $1 WHERE id = $2', [sound || 0, req.userId]);
+  const updated = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
+  res.json(publicUser(updated));
+});
+
 router.get('/search', async (req, res) => {
   const q = (req.query.q || '').trim().toLowerCase();
   if (!q) return res.json([]);

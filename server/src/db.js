@@ -54,7 +54,11 @@ async function initDB() {
       nickname_color TEXT DEFAULT NULL,
       is_moderator BOOLEAN DEFAULT false,
       avatar_emoji TEXT DEFAULT NULL,
-      user_status TEXT DEFAULT 'online'
+      user_status TEXT DEFAULT 'online',
+      foreiki INTEGER DEFAULT 0,
+      profile_gradient TEXT DEFAULT NULL,
+      profile_sound INTEGER DEFAULT 0,
+      badges TEXT[] DEFAULT '{}'
     );
 
     CREATE TABLE IF NOT EXISTS chats (
@@ -128,6 +132,40 @@ async function initDB() {
       pinned_at BIGINT NOT NULL,
       PRIMARY KEY (chat_id, message_id)
     );
+
+    CREATE TABLE IF NOT EXISTS nft_items (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      emoji TEXT NOT NULL,
+      category TEXT NOT NULL DEFAULT 'nft',
+      rarity TEXT NOT NULL DEFAULT 'common' CHECK(rarity IN ('common', 'rare', 'epic', 'legendary')),
+      price INTEGER NOT NULL DEFAULT 10,
+      description TEXT DEFAULT ''
+    );
+
+    CREATE TABLE IF NOT EXISTS user_nfts (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      nft_id TEXT NOT NULL REFERENCES nft_items(id),
+      acquired_at BIGINT NOT NULL,
+      gift_message TEXT DEFAULT NULL,
+      UNIQUE(user_id, nft_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS profile_themes (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      css_effect TEXT NOT NULL,
+      price INTEGER NOT NULL DEFAULT 50,
+      preview TEXT DEFAULT ''
+    );
+
+    CREATE TABLE IF NOT EXISTS user_themes (
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      theme_id TEXT NOT NULL REFERENCES profile_themes(id),
+      purchased_at BIGINT NOT NULL,
+      PRIMARY KEY (user_id, theme_id)
+    );
   `);
 
   await pool.query('CREATE INDEX IF NOT EXISTS idx_messages_chat ON messages(chat_id, created_at)');
@@ -151,6 +189,18 @@ async function initDB() {
   if (!userColNames.includes('user_status')) {
     await pool.query("ALTER TABLE users ADD COLUMN user_status TEXT DEFAULT 'online'");
   }
+  if (!userColNames.includes('foreiki')) {
+    await pool.query('ALTER TABLE users ADD COLUMN foreiki INTEGER DEFAULT 0');
+  }
+  if (!userColNames.includes('profile_gradient')) {
+    await pool.query('ALTER TABLE users ADD COLUMN profile_gradient TEXT DEFAULT NULL');
+  }
+  if (!userColNames.includes('profile_sound')) {
+    await pool.query('ALTER TABLE users ADD COLUMN profile_sound INTEGER DEFAULT 0');
+  }
+  if (!userColNames.includes('badges')) {
+    await pool.query(`ALTER TABLE users ADD COLUMN badges TEXT[] DEFAULT '{}'`);
+  }
 
   const msgCols = await pool.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'messages'`);
   const msgColNames = msgCols.rows.map(r => r.column_name);
@@ -166,6 +216,47 @@ async function initDB() {
   const crunchy = await db.get('SELECT id FROM users WHERE username = $1', ['crunchypersik']);
   if (crunchy) {
     await db.run('UPDATE users SET is_moderator = true WHERE id = $1', [crunchy.id]);
+  }
+
+  const nftCount = await db.get('SELECT COUNT(*)::int as count FROM nft_items');
+  if (nftCount && nftCount.count === 0) {
+    const nfts = [
+      ['nft-diamond', '💎', 'Диамант', 'nft', 'common', 10, 'Блестящий камешек'],
+      ['nft-fire', '🔥', 'Пламя', 'nft', 'common', 10, 'Горячий огонёк'],
+      ['nft-star', '⭐', 'Звезда', 'nft', 'common', 10, 'Сияющая звёздочка'],
+      ['nft-heart', '❤️', 'Сердце', 'nft', 'common', 15, 'Красное сердечко'],
+      ['nft-crown', '👑', 'Корона', 'nft', 'rare', 30, 'Корона для короля'],
+      ['nft-rocket', '🚀', 'Ракета', 'nft', 'rare', 30, 'В космос!'],
+      ['nft-unicorn', '🦄', 'Единорог', 'nft', 'rare', 35, 'Волшебное создание'],
+      ['nft-galaxy', '🌌', 'Галактика', 'nft', 'epic', 60, 'Бесконечный космос'],
+      ['nft-phoenix', '🔥', 'Феникс', 'nft', 'epic', 70, 'Возрождение из пепла'],
+      ['nft-dragon', '🐉', 'Дракон', 'nft', 'legendary', 150, 'Древний дракон'],
+      ['nft-moon', '🌙', 'Луна', 'nft', 'common', 10, 'Ночная луна'],
+      ['nft-sun', '☀️', 'Солнце', 'nft', 'common', 10, 'Яркое солнце'],
+      ['nft-bolt', '⚡', 'Молния', 'nft', 'rare', 25, 'Сила природы'],
+      ['nft-snow', '❄️', 'Снежинка', 'nft', 'common', 10, 'Зимняя красавица'],
+      ['nft-rainbow', '🌈', 'Радуга', 'nft', 'rare', 40, 'Цвета радуги'],
+    ];
+    for (const [id, emoji, name, cat, rarity, price, desc] of nfts) {
+      await db.run('INSERT INTO nft_items (id, name, emoji, category, rarity, price, description) VALUES ($1,$2,$3,$4,$5,$6,$7)', [id, name, emoji, cat, rarity, price, desc]);
+    }
+  }
+
+  const themeCount = await db.get('SELECT COUNT(*)::int as count FROM profile_themes');
+  if (themeCount && themeCount.count === 0) {
+    const themes = [
+      ['theme-cyberpunk', 'Киберпанк', 'cyberpunk', 50, 'Неон + дождь'],
+      ['theme-vintage', 'Винтаж', 'vintage', 50, 'Плёнка + шум'],
+      ['theme-nature', 'Природа', 'nature', 50, 'Падающие листья'],
+      ['theme-space', 'Космос', 'space', 75, 'Падающие звёзды'],
+      ['theme-night', 'Ночная трава', 'nightgrass', 75, 'Луна + роса'],
+      ['theme-fire', 'Огонь', 'fireprofile', 75, 'Пламя снизу'],
+      ['theme-ocean', 'Океан', 'ocean', 60, 'Волны + пузырьки'],
+      ['theme-sakura', 'Сакура', 'sakura', 60, 'Падающие лепестки'],
+    ];
+    for (const [id, name, css, price, desc] of themes) {
+      await db.run('INSERT INTO profile_themes (id, name, css_effect, price, description) VALUES ($1,$2,$3,$4,$5)', [id, name, css, price, desc]);
+    }
   }
 }
 

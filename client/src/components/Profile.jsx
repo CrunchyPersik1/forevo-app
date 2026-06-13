@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Avatar from './Avatar';
 import { api } from '../api';
 import { compressAvatar } from '../utils/avatar';
 import { validateUsername, formatRegistrationDate } from '../utils';
+import Market from './Market';
 
 const BIO_MAX = 150;
 
@@ -13,6 +14,26 @@ const THEMES = [
   { id: 'light-purple', name: 'Фиолетовая (светлая)', preview: 'linear-gradient(135deg, #ffffff, #6c5ce7)' },
   { id: 'light-blue', name: 'Синяя (светлая)', preview: 'linear-gradient(135deg, #ffffff, #2196f3)' },
   { id: 'light-green', name: 'Зелёная (светлая)', preview: 'linear-gradient(135deg, #ffffff, #00a884)' },
+];
+
+const GRADIENTS = [
+  { id: 'grad-1', colors: 'linear-gradient(135deg, #667eea, #764ba2)' },
+  { id: 'grad-2', colors: 'linear-gradient(135deg, #f093fb, #f5576c)' },
+  { id: 'grad-3', colors: 'linear-gradient(135deg, #4facfe, #00f2fe)' },
+  { id: 'grad-4', colors: 'linear-gradient(135deg, #43e97b, #38f9d7)' },
+  { id: 'grad-5', colors: 'linear-gradient(135deg, #fa709a, #fee140)' },
+  { id: 'grad-6', colors: 'linear-gradient(135deg, #a18cd1, #fbc2eb)' },
+  { id: 'grad-7', colors: 'linear-gradient(135deg, #ffecd2, #fcb69f)' },
+  { id: 'grad-8', colors: 'linear-gradient(135deg, #ff9a9e, #fecfef)' },
+];
+
+const SOUNDS = [
+  { id: 0, name: 'Без звука', freq: 0 },
+  { id: 1, name: 'Мелодия', freq: 523 },
+  { id: 2, name: 'Звон', freq: 880 },
+  { id: 3, name: 'Тихий', freq: 330 },
+  { id: 4, name: 'Яркий', freq: 1047 },
+  { id: 5, name: 'Мягкий', freq: 440 },
 ];
 
 export default function Profile({ user, onSave, onLogout, onClose, theme, onSetTheme }) {
@@ -26,7 +47,15 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
   const [usernameStatus, setUsernameStatus] = useState(null);
   const [usernameError, setUsernameError] = useState('');
   const [error, setError] = useState('');
+  const [showMarket, setShowMarket] = useState(false);
+  const [myNfts, setMyNfts] = useState([]);
   const fileRef = useRef(null);
+
+  useEffect(() => {
+    if (screen === 'view') {
+      api.getMyNfts().then(setMyNfts).catch(() => {});
+    }
+  }, [screen]);
 
   const handleCheckUsername = async () => {
     const err = validateUsername(username);
@@ -113,8 +142,33 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
             <Avatar user={avatarUser} size={96} lazy={false} />
             <h3 style={{ marginTop: 12, fontSize: 20, fontWeight: 600 }}>{avatarUser.displayName}</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>@{avatarUser.username}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+              <span style={{ fontSize: 16 }}>🪙</span>
+              <span style={{ fontWeight: 600, color: '#ffd700' }}>{avatarUser.foreiki || 0} Фориков</span>
+            </div>
+            {avatarUser.badges?.length > 0 && (
+              <div className="badge-list">
+                {avatarUser.badges.map((b, i) => (
+                  <span key={i} className="profile-badge">{b}</span>
+                ))}
+              </div>
+            )}
             <p className="profile-joined">На сайте с {formatRegistrationDate(user.createdAt)}</p>
           </div>
+
+          {myNfts.length > 0 && (
+            <div className="nft-collection" style={{ padding: '0 20px' }}>
+              <h4>Коллекция NFT ({myNfts.length})</h4>
+              <div className="nft-scroll">
+                {myNfts.map(nft => (
+                  <div key={nft.id} className="nft-card">
+                    <div className="nft-card-emoji">{nft.emoji}</div>
+                    <div className="nft-card-name">{nft.name}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div style={{ padding: '12px 20px' }}>
             <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8 }} onClick={() => setScreen('edit')}>
@@ -122,6 +176,9 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
             </button>
             <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} onClick={() => setScreen('custom')}>
               🎨 Кастомизация
+            </button>
+            <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'linear-gradient(135deg, #ffd700, #ff8c00)', color: '#1a1a1a' }} onClick={() => setShowMarket(true)}>
+              🏪 Рынок
             </button>
           </div>
 
@@ -329,11 +386,144 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
                 </button>
               ))}
             </div>
+
+            <label>Фон профиля (градиент)</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16 }}>
+              {GRADIENTS.map(g => (
+                <button key={g.id}
+                  style={{
+                    height: 40,
+                    borderRadius: 8,
+                    background: g.colors,
+                    border: avatarUser.profileGradient === g.id ? '3px solid var(--text-primary)' : '3px solid transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                  onClick={async () => {
+                    try {
+                      const updated = await api.updateGradient(g.id);
+                      setAvatarUser(updated);
+                      await onSave(updated, { silent: true });
+                    } catch (e) { alert(e.message); }
+                  }}
+                />
+              ))}
+              {avatarUser.profileGradient && (
+                <button style={{
+                  height: 40,
+                  borderRadius: 8,
+                  background: 'var(--bg-tertiary)',
+                  border: '2px solid var(--border)',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  color: 'var(--text-secondary)',
+                }} onClick={async () => {
+                  try {
+                    const updated = await api.updateGradient(null);
+                    setAvatarUser(updated);
+                    await onSave(updated, { silent: true });
+                  } catch {}
+                }}>✕</button>
+              )}
+            </div>
+
+            <label>Звук профиля</label>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+              {SOUNDS.map(s => (
+                <button key={s.id}
+                  className={`sound-btn ${avatarUser.profileSound === s.id ? 'active' : ''}`}
+                  style={avatarUser.profileSound === s.id ? { borderColor: 'var(--accent)', background: 'var(--accent-subtle)' } : undefined}
+                  onClick={async () => {
+                    if (s.freq) {
+                      try {
+                        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.frequency.value = s.freq;
+                        gain.gain.value = 0.15;
+                        osc.start();
+                        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+                        osc.stop(ctx.currentTime + 0.5);
+                      } catch {}
+                    }
+                    try {
+                      const updated = await api.updateSound(s.id);
+                      setAvatarUser(updated);
+                      await onSave(updated, { silent: true });
+                    } catch (e) { alert(e.message); }
+                  }}
+                >
+                  {s.name}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  return null;
+  return (
+    <>
+      {showMarket && <Market user={user} onClose={() => setShowMarket(false)} onUpdate={onSave} />}
+      {screen === 'view' && (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal profile-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Профиль</h3>
+              <button onClick={onClose}>✕</button>
+            </div>
+
+            <div className="profile-avatar-section">
+              <Avatar user={avatarUser} size={96} lazy={false} />
+              <h3 style={{ marginTop: 12, fontSize: 20, fontWeight: 600 }}>{avatarUser.displayName}</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>@{avatarUser.username}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+                <span style={{ fontSize: 16 }}>🪙</span>
+                <span style={{ fontWeight: 600, color: '#ffd700' }}>{avatarUser.foreiki || 0} Фориков</span>
+              </div>
+              {avatarUser.badges?.length > 0 && (
+                <div className="badge-list">
+                  {avatarUser.badges.map((b, i) => (
+                    <span key={i} className="profile-badge">{b}</span>
+                  ))}
+                </div>
+              )}
+              <p className="profile-joined">На сайте с {formatRegistrationDate(user.createdAt)}</p>
+            </div>
+
+            {myNfts.length > 0 && (
+              <div className="nft-collection" style={{ padding: '0 20px' }}>
+                <h4>Коллекция NFT ({myNfts.length})</h4>
+                <div className="nft-scroll">
+                  {myNfts.map(nft => (
+                    <div key={nft.id} className="nft-card">
+                      <div className="nft-card-emoji">{nft.emoji}</div>
+                      <div className="nft-card-name">{nft.name}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ padding: '12px 20px' }}>
+              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8 }} onClick={() => setScreen('edit')}>
+                ✏️ Изменить профиль
+              </button>
+              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} onClick={() => setScreen('custom')}>
+                🎨 Кастомизация
+              </button>
+              <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'linear-gradient(135deg, #ffd700, #ff8c00)', color: '#1a1a1a' }} onClick={() => setShowMarket(true)}>
+                🏪 Рынок
+              </button>
+            </div>
+
+            <button className="logout-btn" onClick={onLogout}>Выйти из аккаунта</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
