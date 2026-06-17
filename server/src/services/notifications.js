@@ -27,7 +27,7 @@ export async function sendMentionEmail(toUserId, fromUserName, chatName, message
 
   try {
     await transport.sendMail({
-      from: process.env.SMTP_FROM || 'Forevo <noreply@forevo.app>',
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || 'Forevo <noreply@forevo.app>',
       to: user.email,
       subject: `${fromUserName} упомянул(а) вас в "${chatName}"`,
       html: `
@@ -57,7 +57,7 @@ export async function sendOfflineMessageEmail(toUserId, fromUserName, chatName, 
 
   try {
     await transport.sendMail({
-      from: process.env.SMTP_FROM || 'Forevo <noreply@forevo.app>',
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || 'Forevo <noreply@forevo.app>',
       to: user.email,
       subject: `Новое сообщение от ${fromUserName} в "${chatName}"`,
       html: `
