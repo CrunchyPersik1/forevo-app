@@ -140,6 +140,12 @@ export default function MessageBubble({
         <>
           <div className="msg-menu-overlay" onClick={() => setShowMenu(false)} />
           <div className="msg-menu">
+            <div className="msg-menu-reactions">
+              {REACTIONS.map(e => (
+                <button key={e} className="msg-menu-reaction" onClick={() => { onReact(message.id, e); setShowMenu(false); }}>{e}</button>
+              ))}
+            </div>
+            <div className="msg-menu-divider" />
             {!isOwn && onOpenProfile && (
               <button onClick={() => { onOpenProfile(message.senderId); setShowMenu(false); }}>👤 Профиль</button>
             )}
@@ -150,9 +156,6 @@ export default function MessageBubble({
                 {isPinned ? '📌 Открепить' : '📌 Закрепить'}
               </button>
             )}
-            {REACTIONS.map(e => (
-              <button key={e} onClick={() => { onReact(message.id, e); setShowMenu(false); }}>{e}</button>
-            ))}
             {isOwn && message.type === 'text' && !message.deletedAt && (
               <button onClick={() => { setEditing(true); setShowMenu(false); }}>✏️ Изменить</button>
             )}
