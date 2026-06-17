@@ -13,7 +13,6 @@ export default function UserProfile({
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
-  const [userNfts, setUserNfts] = useState([]);
 
   const isSelf = userId === currentUser.id;
   const isOnline = onlineUsers.includes(userId);
@@ -31,7 +30,6 @@ export default function UserProfile({
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
-    api.getMyNfts(userId).then(setUserNfts).catch(() => {});
   }, [userId]);
 
   const handleMessage = async () => {
@@ -128,21 +126,6 @@ export default function UserProfile({
             >
               {profile.iBlocked ? 'Разблокировать' : 'Заблокировать'}
             </button>
-          </div>
-        )}
-
-        {userNfts.length > 0 && (
-          <div className="nft-collection" style={{ padding: '0 20px 16px' }}>
-            <h4>Коллекция ({userNfts.length})</h4>
-            <div className="nft-scroll">
-              {userNfts.map(nft => (
-                <div key={nft.id} className="nft-card">
-                  <div className="nft-card-emoji">{nft.emoji}</div>
-                  <div className="nft-card-name">{nft.name}</div>
-                  <div className={`nft-card-rarity ${nft.rarity}`}>{nft.rarity === 'exclusive' ? '★' : nft.rarity}</div>
-                </div>
-              ))}
-            </div>
           </div>
         )}
       </div>
