@@ -11,7 +11,6 @@ import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import chatRoutes from './routes/chats.js';
 import messageRoutes from './routes/messages.js';
-import marketRoutes from './routes/market.js';
 import { authMiddleware } from './auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -41,7 +40,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/chats', chatRoutes);
 app.use('/api/messages', messageRoutes);
-app.use('/api/market', marketRoutes);
 
 app.get('/api/online', authMiddleware, (_req, res) => {
   res.json(getOnlineUsers());

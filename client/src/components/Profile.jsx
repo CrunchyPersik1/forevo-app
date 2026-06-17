@@ -3,7 +3,6 @@ import Avatar from './Avatar';
 import { api } from '../api';
 import { compressAvatar } from '../utils/avatar';
 import { validateUsername, formatRegistrationDate } from '../utils';
-import Market from './Market';
 
 const BIO_MAX = 150;
 
@@ -54,7 +53,7 @@ export function playProfileSound(soundId) {
   } catch {}
 }
 
-export default function Profile({ user, onSave, onLogout, onClose, theme, onSetTheme, onShowMarket }) {
+export default function Profile({ user, onSave, onLogout, onClose, theme, onSetTheme }) {
   const [screen, setScreen] = useState('view');
   const [displayName, setDisplayName] = useState(user.displayName);
   const [username, setUsername] = useState(user.username);
@@ -175,11 +174,6 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
-              <span style={{ fontSize: 16 }}>🪙</span>
-              <span style={{ fontWeight: 600, color: '#ffd700' }}>{avatarUser.foreiki || 0} Фориков</span>
-            </div>
-
             {avatarUser.badges?.length > 0 && (
               <div className="badge-list">
                 {avatarUser.badges.map((b, i) => (
@@ -198,27 +192,9 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
             <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} onClick={() => setScreen('custom')}>
               🎨 Кастомизация
             </button>
-            <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'linear-gradient(135deg, #ffd700, #ff8c00)', color: '#1a1a1a' }} onClick={onShowMarket}>
-              🏪 Рынок
-            </button>
           </div>
 
           <button className="logout-btn" onClick={onLogout}>Выйти из аккаунта</button>
-
-          {myNfts.length > 0 && (
-            <div className="nft-collection" style={{ padding: '0 20px 16px', position: 'relative', zIndex: 1 }}>
-              <h4>Коллекция ({myNfts.length})</h4>
-              <div className="nft-scroll">
-                {myNfts.map(nft => (
-                  <div key={nft.id} className="nft-card">
-                    <div className="nft-card-emoji">{nft.emoji}</div>
-                    <div className="nft-card-name">{nft.name}</div>
-                    <div className={`nft-card-rarity ${nft.rarity}`}>{nft.rarity}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     );

@@ -76,12 +76,4 @@ export const api = {
   updateStatus: (status) => request('/users/me/status', { method: 'PATCH', body: JSON.stringify({ status }) }),
   updateGradient: (gradient) => request('/users/me/gradient', { method: 'PATCH', body: JSON.stringify({ gradient }) }),
   updateSound: (sound) => request('/users/me/sound', { method: 'PATCH', body: JSON.stringify({ sound }) }),
-  getMarketNfts: () => request('/market/nfts'),
-  getMarketThemes: () => request('/market/themes'),
-  buyNft: (id) => request(`/market/nfts/${id}/buy`, { method: 'POST' }),
-  buyTheme: (id) => request(`/market/themes/${id}/buy`, { method: 'POST' }),
-  getMyNfts: (userId) => userId ? request(`/market/nfts/user/${userId}`) : request('/market/my-nfts'),
-  getMyThemes: () => request('/market/my-themes'),
-  getMarketBalance: () => request('/market/balance'),
-  giftNft: (toUserId, nftId, message) => request('/market/gift', { method: 'POST', body: JSON.stringify({ toUserId, nftId, message }) }),
 };

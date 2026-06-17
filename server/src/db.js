@@ -2,7 +2,6 @@ import pg from 'pg';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import { v4 as uuid } from 'uuid';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, '..', 'data');
@@ -133,41 +132,6 @@ async function initDB() {
       pinned_at BIGINT NOT NULL,
       PRIMARY KEY (chat_id, message_id)
     );
-
-    CREATE TABLE IF NOT EXISTS nft_items (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      emoji TEXT NOT NULL,
-      category TEXT NOT NULL DEFAULT 'nft',
-      rarity TEXT NOT NULL DEFAULT 'common' CHECK(rarity IN ('common', 'rare', 'epic', 'legendary', 'exclusive')),
-      price INTEGER NOT NULL DEFAULT 10,
-      description TEXT DEFAULT '',
-      exclusive BOOLEAN DEFAULT false
-    );
-
-    CREATE TABLE IF NOT EXISTS user_nfts (
-      id TEXT PRIMARY KEY,
-      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      nft_id TEXT NOT NULL REFERENCES nft_items(id),
-      acquired_at BIGINT NOT NULL,
-      gift_message TEXT DEFAULT NULL,
-      UNIQUE(user_id, nft_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS profile_themes (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      css_effect TEXT NOT NULL,
-      price INTEGER NOT NULL DEFAULT 50,
-      preview TEXT DEFAULT ''
-    );
-
-    CREATE TABLE IF NOT EXISTS user_themes (
-      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      theme_id TEXT NOT NULL REFERENCES profile_themes(id),
-      purchased_at BIGINT NOT NULL,
-      PRIMARY KEY (user_id, theme_id)
-    );
   `);
 
   await pool.query('CREATE INDEX IF NOT EXISTS idx_messages_chat ON messages(chat_id, created_at)');
@@ -223,77 +187,7 @@ async function initDB() {
 
   const crunchy = await db.get('SELECT id FROM users WHERE username = $1', ['crunchypersik']);
   if (crunchy) {
-    await db.run('UPDATE users SET is_moderator = true, foreiki = 1000 WHERE id = $1', [crunchy.id]);
-    const crunchyNfts = await db.get('SELECT COUNT(*)::int as count FROM user_nfts WHERE user_id = $1', [crunchy.id]);
-    if (crunchyNfts && crunchyNfts.count === 0) {
-      const starterNfts = [
-        'ex-crown', 'ex-phoenix', 'ex-infinity', 'ex-rocket',
-        'ex-star', 'ex-diamond', 'ex-lightning', 'ex-moon',
-        'nft-aurora', 'nft-ember', 'nft-cipher', 'nft-void',
-        'nft-echo', 'nft-prism', 'nft-nova', 'nft-spectrum',
-        'nft-eclipse', 'nft-phantom', 'nft-zenith',
-        'nft-singularity', 'nft-leviathan', 'nft-chronos', 'nft-omega',
-      ];
-      for (const nftId of starterNfts) {
-        await db.run('INSERT INTO user_nfts (id, user_id, nft_id, acquired_at) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING',
-          [uuid(), crunchy.id, nftId, Date.now()]);
-      }
-    }
-  }
-
-  const nftCount = await db.get('SELECT COUNT(*)::int as count FROM nft_items');
-  if (nftCount && nftCount.count === 0) {
-    const nfts = [
-      ['nft-aurora', '🌌', 'Аврора', 'nft', 'common', 15, 'Северное сияние'],
-      ['nft-ember', '🔮', 'Пламя Души', 'nft', 'common', 15, 'Тёплый свет внутри'],
-      ['nft-cipher', '🔐', 'Шифр', 'nft', 'common', 15, 'Закодированная тайна'],
-      ['nft-void', '🕳️', 'Бездна', 'nft', 'common', 20, 'Тьма на краю мироздания'],
-      ['nft-echo', '💫', 'Эхо', 'nft', 'rare', 35, 'Отзвук далёкой галактики'],
-      ['nft-prism', '🔷', 'Призма', 'nft', 'rare', 40, 'Рассеивает свет на спектр'],
-      ['nft-nova', '💥', 'Нова', 'nft', 'rare', 45, 'Взрыв новой звезды'],
-      ['nft-spectrum', '🌈', 'Спектр', 'nft', 'rare', 40, 'Полная палитра вселенной'],
-      ['nft-eclipse', '🌑', 'Затмение', 'nft', 'epic', 75, 'Луна закрыла солнце'],
-      ['nft-phantom', '👻', 'Фантом', 'nft', 'epic', 80, 'Призрак прошлого века'],
-      ['nft-zenith', '⛰️', 'Зенит', 'nft', 'epic', 85, 'Вершина мироздания'],
-      ['nft-singularity', '🕳️', 'Сингулярность', 'nft', 'legendary', 150, 'Точка без возврата'],
-      ['nft-leviathan', '🐉', 'Левиафан', 'nft', 'legendary', 180, 'Древний морской владыка'],
-      ['nft-chronos', '⏳', 'Хронос', 'nft', 'legendary', 200, 'Повелитель времени'],
-      ['nft-omega', '🔴', 'Омега', 'nft', 'legendary', 250, 'Последняя точка пути'],
-    ];
-    for (const [id, emoji, name, cat, rarity, price, desc] of nfts) {
-      await db.run('INSERT INTO nft_items (id, name, emoji, category, rarity, price, description) VALUES ($1,$2,$3,$4,$5,$6,$7)', [id, name, emoji, cat, rarity, price, desc]);
-    }
-
-    const exclusiveNfts = [
-      ['ex-crown', '👑', 'Корона Создателя', 'exclusive', 'legendary', 0, 'Только для основателя', true],
-      ['ex-phoenix', '🦅', 'Феникс Forevo', 'exclusive', 'legendary', 0, 'Возрождение мессенджера', true],
-      ['ex-infinity', '♾️', 'Бесконечность', 'exclusive', 'legendary', 0, 'Безграничные возможности', true],
-      ['ex-rocket', '🚀', 'Первопроходец', 'exclusive', 'legendary', 0, 'Первый в космосе', true],
-      ['ex-star', '🌟', 'Звезда', 'exclusive', 'legendary', 0, 'Сияет ярче всех', true],
-      ['ex-diamond', '💎', 'Бриллиант', 'exclusive', 'legendary', 0, 'Несокрушимый', true],
-      ['ex-lightning', '⚡', 'Молния', 'exclusive', 'legendary', 0, 'Скорость мысли', true],
-      ['ex-moon', '🌙', 'Луна', 'exclusive', 'legendary', 0, 'Ночная стража', true],
-    ];
-    for (const [id, emoji, name, cat, rarity, price, desc, excl] of exclusiveNfts) {
-      await db.run('INSERT INTO nft_items (id, name, emoji, category, rarity, price, description, exclusive) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)', [id, name, emoji, cat, rarity, price, desc, excl]);
-    }
-  }
-
-  const themeCount = await db.get('SELECT COUNT(*)::int as count FROM profile_themes');
-  if (themeCount && themeCount.count === 0) {
-    const themes = [
-      ['theme-cyberpunk', 'Киберпанк', 'cyberpunk', 50, 'Неон + дождь'],
-      ['theme-vintage', 'Винтаж', 'vintage', 50, 'Плёнка + шум'],
-      ['theme-nature', 'Природа', 'nature', 50, 'Падающие листья'],
-      ['theme-space', 'Космос', 'space', 75, 'Падающие звёзды'],
-      ['theme-night', 'Ночная трава', 'nightgrass', 75, 'Луна + роса'],
-      ['theme-fire', 'Огонь', 'fireprofile', 75, 'Пламя снизу'],
-      ['theme-ocean', 'Океан', 'ocean', 60, 'Волны + пузырьки'],
-      ['theme-sakura', 'Сакура', 'sakura', 60, 'Падающие лепестки'],
-    ];
-    for (const [id, name, css, price, desc] of themes) {
-      await db.run('INSERT INTO profile_themes (id, name, css_effect, price, description) VALUES ($1,$2,$3,$4,$5)', [id, name, css, price, desc]);
-    }
+    await db.run('UPDATE users SET is_moderator = true WHERE id = $1', [crunchy.id]);
   }
 }
 
