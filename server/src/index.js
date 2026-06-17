@@ -42,7 +42,9 @@ app.use('/api/chats', chatRoutes);
 app.use('/api/messages', messageRoutes);
 
 app.get('/api/online', authMiddleware, (_req, res) => {
-  res.json(getOnlineUsers());
+  const online = getOnlineUsers();
+  console.log(`[API] /online requested, count: ${online.length}, ids: ${online.join(', ')}`);
+  res.json(online);
 });
 
 const clientDist = path.join(__dirname, '..', '..', 'client', 'dist');

@@ -24,6 +24,7 @@ export function setupSocket(io) {
 
     await db.run('UPDATE users SET last_seen = NULL WHERE id = $1', [userId]);
     io.emit('user:online', { userId, online: true });
+    console.log(`[SOCK] user=${userId} connected, online users: ${[...onlineUsers.keys()].length}`);
 
     const chats = await db.all('SELECT chat_id FROM chat_members WHERE user_id = $1', [userId]);
     for (const { chat_id } of chats) {
@@ -55,6 +56,9 @@ export function setupSocket(io) {
           const now = Date.now();
           await db.run('UPDATE users SET last_seen = $1 WHERE id = $2', [now, userId]);
           io.emit('user:online', { userId, online: false, lastSeen: now });
+          console.log(`[SOCK] user=${userId} disconnected, online users: ${[...onlineUsers.keys()].length}`);
+        } else {
+          console.log(`[SOCK] user=${userId} socket removed, remaining: ${sockets.size}`);
         }
       }
     });
