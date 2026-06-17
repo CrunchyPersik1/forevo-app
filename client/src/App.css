@@ -577,6 +577,7 @@
   gap: 8px;
   max-width: 70%;
   animation: fadeIn 0.2s ease;
+  position: relative;
 }
 
 .msg-row.own {
