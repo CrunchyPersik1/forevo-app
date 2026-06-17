@@ -64,14 +64,7 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
   const [usernameStatus, setUsernameStatus] = useState(null);
   const [usernameError, setUsernameError] = useState('');
   const [error, setError] = useState('');
-  const [myNfts, setMyNfts] = useState([]);
   const fileRef = useRef(null);
-
-  useEffect(() => {
-    if (screen === 'view') {
-      api.getMyNfts().then(setMyNfts).catch(() => {});
-    }
-  }, [screen]);
 
   useEffect(() => {
     if (user.profileSound) playProfileSound(user.profileSound);
