@@ -22,7 +22,7 @@ export function setupSocket(io) {
 
     socket.join(`user:${userId}`);
 
-    await db.run('UPDATE users SET last_seen = 0 WHERE id = $1', [userId]);
+    await db.run('UPDATE users SET last_seen = NULL WHERE id = $1', [userId]);
     io.emit('user:online', { userId, online: true });
 
     const chats = await db.all('SELECT chat_id FROM chat_members WHERE user_id = $1', [userId]);
