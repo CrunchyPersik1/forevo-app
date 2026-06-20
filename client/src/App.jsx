@@ -10,6 +10,7 @@ import Profile from './components/Profile';
 import UserProfile from './components/UserProfile';
 import GroupSettings from './components/GroupSettings';
 import ForwardModal from './components/ForwardModal';
+import Changelog from './components/Changelog';
 import './App.css';
 
 function applyUserToChats(chats, updatedUser, myId) {
@@ -77,8 +78,11 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
+    if ('Notification' in window && Notification.permission !== 'granted') {
       Notification.requestPermission();
+    }
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker?.register('/sw.js').catch(() => {});
     }
   }, []);
 
@@ -643,6 +647,7 @@ export default function App() {
           onClose={() => setForwardingMessage(null)}
         />
       )}
+      <Changelog />
     </div>
   );
 }
