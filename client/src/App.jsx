@@ -78,13 +78,20 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
-    if ('Notification' in window && Notification.permission !== 'granted') {
-      Notification.requestPermission();
-    }
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker?.register('/sw.js').catch(() => {});
     }
   }, []);
+
+  const requestNotificationPermission = () => {
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          alert('Уведомления включены!');
+        }
+      });
+    }
+  };
 
   const playNotificationSound = () => {
     try {
@@ -534,6 +541,7 @@ export default function App() {
           onProfile={() => setShowProfile(true)}
           themeIcon={themeIcon}
           onToggleTheme={toggleTheme}
+          onRequestNotifications={requestNotificationPermission}
         />
       </div>
 
