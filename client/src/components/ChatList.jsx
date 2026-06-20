@@ -6,12 +6,14 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
 
   return (
     <div className="chat-list">
+      {!notifGranted && (
+        <div className="notif-banner" onClick={onRequestNotifications}>
+          🔔 Включить уведомления
+        </div>
+      )}
       <div className="chat-list-header">
         <h2>Чаты</h2>
         <div className="chat-list-actions">
-          {!notifGranted && (
-            <button className="icon-btn" onClick={onRequestNotifications} title="Включить уведомления">🔔</button>
-          )}
           <button className="icon-btn" onClick={onToggleTheme} title="Сменить тему">{themeIcon}</button>
           <button className="icon-btn" onClick={onNewGroup} title="Новая группа">👥</button>
           <button className="icon-btn" onClick={onNewChat} title="Новый чат">✏️</button>

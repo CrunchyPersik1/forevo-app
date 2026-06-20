@@ -149,6 +149,19 @@
 }
 
 /* === Chat List === */
+.notif-banner {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.notif-banner:hover { opacity: 0.9; }
+
 .chat-list {
   display: flex;
   flex-direction: column;
