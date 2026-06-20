@@ -1,20 +1,17 @@
-const CACHE_NAME = 'forevo-v1';
-
-self.addEventListener('install', (event) => {
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((names) => Promise.all(
-      names.filter(n => n !== CACHE_NAME).map(n => caches.delete(n))
-    ))
-  );
-  self.clients.claim();
+  event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : {};
+  let data = { title: 'Forevo', body: 'Новое сообщение' };
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {}
+
   const title = data.title || 'Forevo';
   const options = {
     body: data.body || 'Новое сообщение',
@@ -22,26 +19,10 @@ self.addEventListener('push', (event) => {
     badge: '/icon.png',
     vibrate: [200, 100, 200],
     data: data.url || '/',
-    requireInteraction: false,
-    silent: false,
-    tag: 'forevo-' + (data.tag || Date.now()),
+    tag: 'forevo-' + Date.now(),
   };
 
-  event.waitUntil(
-    self.registration.showNotification(title, options).then(() => {
-      return self.clients.matchAll({ type: 'window' }).then((clients) => {
-        for (const client of clients) {
-          if (client.url.includes(self.location.origin)) {
-            client.postMessage({
-              type: 'PUSH_NOTIFICATION',
-              title: title,
-              body: options.body,
-            });
-          }
-        }
-      });
-    })
-  );
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', (event) => {
@@ -50,8 +31,7 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.postMessage({ type: 'NOTIFICATION_CLICKED', url });
+        if (client.url.includes(self.location.origin)) {
           return client.focus();
         }
       }

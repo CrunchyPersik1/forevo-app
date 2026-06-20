@@ -8,6 +8,7 @@ import { authMiddleware } from '../auth.js';
 import { isMember, formatMessage, getChatMembers } from './chats.js';
 import { isBlocked } from '../utils/blocks.js';
 import { sendMentionEmail } from '../services/notifications.js';
+import { sendPushNotification } from './push.js';
 
 const router = Router();
 router.use(authMiddleware);
@@ -119,6 +120,13 @@ router.post('/:chatId', upload.array('files', 10), async (req, res) => {
           sendOfflineMessageEmail(other.id, message.senderName, message.senderName, content?.trim().slice(0, 200));
         }
       }
+    }
+
+    const chatMembers = await getChatMembers(chatId);
+    const recipients = chatMembers.filter(m => m.id !== req.userId);
+    const chatTitle = chat?.type === 'group' ? (await db.get('SELECT name FROM chats WHERE id = $1', [chatId]))?.name : message.senderName;
+    for (const member of recipients) {
+      sendPushNotification(member.id, message.senderName || chatTitle, content?.trim().slice(0, 100) || 'Вложение', '/');
     }
 
     res.status(201).json(message);

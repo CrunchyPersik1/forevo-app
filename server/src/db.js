@@ -132,6 +132,14 @@ async function initDB() {
       pinned_at BIGINT NOT NULL,
       PRIMARY KEY (chat_id, message_id)
     );
+
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      endpoint TEXT NOT NULL UNIQUE,
+      keys TEXT NOT NULL,
+      created_at BIGINT DEFAULT EXTRACT(EPOCH FROM NOW()) * 1000
+    );
   `);
 
   await pool.query('CREATE INDEX IF NOT EXISTS idx_messages_chat ON messages(chat_id, created_at)');

@@ -83,13 +83,41 @@ export default function App() {
     }
   }, []);
 
-  const requestNotificationPermission = () => {
+  const requestNotificationPermission = async () => {
     if ('Notification' in window && Notification.permission !== 'granted') {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          alert('Уведомления включены!');
-        }
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        await subscribePush();
+        alert('Уведомления включены!');
+      }
+    } else if (Notification.permission === 'granted') {
+      await subscribePush();
+      alert('Уведомления уже включены! Push-подписка обновлена.');
+    }
+  };
+
+  const subscribePush = async () => {
+    try {
+      const reg = await navigator.serviceWorker?.ready;
+      if (!reg) return;
+
+      const { publicKey } = await api.getVapidKey();
+      if (!publicKey) return;
+
+      const subscription = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: publicKey,
       });
+
+      await api.subscribePush({
+        endpoint: subscription.endpoint,
+        keys: {
+          p256dh: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('p256dh')))),
+          auth: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('auth')))),
+        },
+      });
+    } catch (err) {
+      console.error('Push subscribe error:', err);
     }
   };
 

@@ -76,4 +76,7 @@ export const api = {
   updateStatus: (status) => request('/users/me/status', { method: 'PATCH', body: JSON.stringify({ status }) }),
   updateGradient: (gradient) => request('/users/me/gradient', { method: 'PATCH', body: JSON.stringify({ gradient }) }),
   updateSound: (sound) => request('/users/me/sound', { method: 'PATCH', body: JSON.stringify({ sound }) }),
+  getVapidKey: () => request('/push/vapid-key'),
+  subscribePush: (subscription) => request('/push/subscribe', { method: 'POST', body: JSON.stringify(subscription) }),
+  unsubscribePush: (endpoint) => request('/push/subscribe', { method: 'DELETE', body: JSON.stringify({ endpoint }) }),
 };
