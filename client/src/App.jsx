@@ -98,9 +98,22 @@ export default function App() {
     } catch {}
   };
 
-  const showBrowserNotification = (title, body) => {
+  const showBrowserNotification = (title, body, url) => {
     if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, { body, icon: '/favicon.ico', tag: 'forevo' });
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready.then(reg => {
+          reg.showNotification(title, {
+            body,
+            icon: '/icon.png',
+            badge: '/icon.png',
+            vibrate: [100, 50, 100],
+            data: url || '/',
+            tag: 'forevo',
+          });
+        });
+      } else {
+        new Notification(title, { body, icon: '/icon.png', tag: 'forevo' });
+      }
     }
   };
 
