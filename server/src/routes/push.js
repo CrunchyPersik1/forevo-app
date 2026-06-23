@@ -25,6 +25,7 @@ router.get('/vapid-key', (req, res) => {
 router.post('/subscribe', async (req, res) => {
   try {
     const { endpoint, keys } = req.body;
+    console.log(`[PUSH] Subscribe: userId=${req.userId}, endpoint=${endpoint?.substring(0, 50)}...`);
     if (!endpoint || !keys) return res.status(400).json({ error: 'endpoint and keys required' });
 
     const existing = await db.get('SELECT id FROM push_subscriptions WHERE endpoint = $1', [endpoint]);
@@ -35,6 +36,8 @@ router.post('/subscribe', async (req, res) => {
         [crypto.randomUUID(), req.userId, endpoint, JSON.stringify(keys)]);
     }
 
+    const count = await db.get('SELECT COUNT(*)::int as count FROM push_subscriptions WHERE user_id = $1', [req.userId]);
+    console.log(`[PUSH] Subscription saved! User now has ${count.count} subscriptions`);
     res.json({ ok: true });
   } catch (err) {
     console.error('POST /push/subscribe error:', err);
