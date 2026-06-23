@@ -456,6 +456,46 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
                 }}
               />
             </label>
+
+            <label className="toggle-row">
+              <span>Push-уведомления</span>
+              <input
+                type="checkbox"
+                checked={typeof Notification !== 'undefined' && Notification.permission === 'granted'}
+                onChange={async (e) => {
+                  if (e.target.checked) {
+                    if ('Notification' in window) {
+                      const perm = await Notification.requestPermission();
+                      if (perm === 'granted') {
+                        try {
+                          const reg = await navigator.serviceWorker?.ready;
+                          if (reg) {
+                            const { publicKey } = await api.getVapidKey();
+                            if (publicKey) {
+                              const sub = await reg.pushManager.subscribe({
+                                userVisibleOnly: true,
+                                applicationServerKey: publicKey,
+                              });
+                              await api.subscribePush({
+                                endpoint: sub.endpoint,
+                                keys: {
+                                  p256dh: btoa(String.fromCharCode(...new Uint8Array(sub.getKey('p256dh')))),
+                                  auth: btoa(String.fromCharCode(...new Uint8Array(sub.getKey('auth')))),
+                                },
+                              });
+                            }
+                          }
+                        } catch (err) { console.error('Push subscribe error:', err); }
+                      }
+                    }
+                  } else {
+                    if ('Notification' in window) {
+                      await Notification.requestPermission();
+                    }
+                  }
+                }}
+              />
+            </label>
           </div>
         </div>
       </div>
