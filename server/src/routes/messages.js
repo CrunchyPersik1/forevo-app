@@ -126,6 +126,7 @@ router.post('/:chatId', upload.array('files', 10), async (req, res) => {
     const chatMembers = await getChatMembers(chatId);
     const recipients = chatMembers.filter(m => m.id !== req.userId);
     const chatTitle = chat?.type === 'group' ? (await db.get('SELECT name FROM chats WHERE id = $1', [chatId]))?.name : message.senderName;
+    console.log(`[MSG] Push: chatId=${chatId}, recipients=${recipients.length}, chatTitle=${chatTitle}`);
     for (const member of recipients) {
       sendPushNotification(member.id, message.senderName || chatTitle, content?.trim().slice(0, 100) || 'Вложение', '/');
     }

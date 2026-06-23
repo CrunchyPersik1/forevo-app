@@ -57,10 +57,12 @@ router.delete('/subscribe', async (req, res) => {
 });
 
 export async function sendPushNotification(userId, title, body, url) {
+  console.log(`[PUSH] Called for user=${userId}, title=${title}`);
   if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
     console.log('[PUSH] VAPID keys not configured');
     return;
   }
+  console.log('[PUSH] VAPID keys OK');
 
   const subscriptions = await db.all('SELECT endpoint, keys FROM push_subscriptions WHERE user_id = $1', [userId]);
   console.log(`[PUSH] Sending to user=${userId}, subscriptions=${subscriptions.length}`);
