@@ -1671,6 +1671,77 @@
   color: var(--accent);
 }
 
+/* === Legal Links === */
+.legal-links {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 20px 12px;
+}
+
+.legal-link {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: underline;
+  transition: color 0.15s;
+}
+
+.legal-link:hover {
+  color: var(--text-secondary);
+}
+
+.legal-content {
+  padding: 16px 20px;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.legal-content h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 16px 0 8px;
+  color: var(--text-primary);
+}
+
+.legal-content h4:first-child {
+  margin-top: 0;
+}
+
+.legal-content p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.legal-content ul {
+  padding-left: 20px;
+  margin-bottom: 8px;
+}
+
+.legal-content li {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.legal-content a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.legal-content a:hover {
+  text-decoration: underline;
+}
+
+.legal-date {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 16px;
+  font-style: italic;
+}
+
 /* === Smooth Transitions === */
 .sidebar, .main, .modal, .msg-bubble, .chat-item, .send-btn {
   transition: background-color 0.2s ease, transform 0.15s ease;
