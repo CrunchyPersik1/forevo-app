@@ -42,6 +42,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState(() => localStorage.getItem('forevo-theme') || 'dark-purple');
   const [forwardingMessage, setForwardingMessage] = useState(null);
+  const [notifEnabled, setNotifEnabled] = useState(() => typeof Notification !== 'undefined' && Notification.permission === 'granted');
 
   const getWallpaper = (chatId) => localStorage.getItem(`forevo-wallpaper-${chatId}`) || null;
   const setWallpaper = (chatId, url) => {
@@ -129,6 +130,32 @@ export default function App() {
     } catch (err) {
       console.error('Push subscribe error:', err);
     }
+  };
+
+  const enableNotifications = async () => {
+    if ('Notification' in window) {
+      const perm = await Notification.requestPermission();
+      if (perm === 'granted') {
+        setNotifEnabled(true);
+        await subscribePush();
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const disableNotifications = async () => {
+    try {
+      const reg = await navigator.serviceWorker?.ready;
+      if (reg) {
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) {
+          await api.unsubscribePush({ endpoint: sub.endpoint });
+          await sub.unsubscribe();
+        }
+      }
+    } catch {}
+    setNotifEnabled(false);
   };
 
   const playNotificationSound = () => {
@@ -640,7 +667,9 @@ export default function App() {
           onClose={() => setShowProfile(false)}
           theme={theme}
           onSetTheme={setTheme}
-          onShowMarket={() => setShowMarket(true)}
+          notifEnabled={notifEnabled}
+          onEnableNotifications={enableNotifications}
+          onDisableNotifications={disableNotifications}
         />
       )}
       {viewProfileId && (

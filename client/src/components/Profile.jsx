@@ -53,7 +53,7 @@ export function playProfileSound(soundId) {
   } catch {}
 }
 
-export default function Profile({ user, onSave, onLogout, onClose, theme, onSetTheme }) {
+export default function Profile({ user, onSave, onLogout, onClose, theme, onSetTheme, notifEnabled, onEnableNotifications, onDisableNotifications }) {
   const [screen, setScreen] = useState('view');
   const [displayName, setDisplayName] = useState(user.displayName);
   const [username, setUsername] = useState(user.username);
@@ -461,48 +461,13 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
               <span>Push-уведомления</span>
               <input
                 type="checkbox"
-                checked={typeof Notification !== 'undefined' && Notification.permission === 'granted'}
+                checked={notifEnabled}
                 onChange={async (e) => {
                   if (e.target.checked) {
-                    if ('Notification' in window) {
-                      const perm = await Notification.requestPermission();
-                      if (perm === 'granted') {
-                        try {
-                          const reg = await navigator.serviceWorker?.ready;
-                          if (reg) {
-                            const { publicKey } = await api.getVapidKey();
-                            if (publicKey) {
-                              const sub = await reg.pushManager.subscribe({
-                                userVisibleOnly: true,
-                                applicationServerKey: publicKey,
-                              });
-                              await api.subscribePush({
-                                endpoint: sub.endpoint,
-                                keys: {
-                                  p256dh: btoa(String.fromCharCode(...new Uint8Array(sub.getKey('p256dh')))),
-                                  auth: btoa(String.fromCharCode(...new Uint8Array(sub.getKey('auth')))),
-                                },
-                              });
-                              alert('Push-уведомления включены!');
-                            }
-                          }
-                        } catch (err) {
-                          console.error('Push subscribe error:', err);
-                          alert('Ошибка: ' + err.message);
-                        }
-                      }
-                    }
+                    const ok = await onEnableNotifications();
+                    if (!ok) alert('Не удалось включить уведомления');
                   } else {
-                    try {
-                      const reg = await navigator.serviceWorker?.ready;
-                      if (reg) {
-                        const sub = await reg.pushManager.getSubscription();
-                        if (sub) {
-                          await api.unsubscribePush({ endpoint: sub.endpoint });
-                          await sub.unsubscribe();
-                        }
-                      }
-                    } catch {}
+                    await onDisableNotifications();
                   }
                 }}
               />
