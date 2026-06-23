@@ -57,9 +57,13 @@ router.delete('/subscribe', async (req, res) => {
 });
 
 export async function sendPushNotification(userId, title, body, url) {
-  if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) return;
+  if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+    console.log('[PUSH] VAPID keys not configured');
+    return;
+  }
 
   const subscriptions = await db.all('SELECT endpoint, keys FROM push_subscriptions WHERE user_id = $1', [userId]);
+  console.log(`[PUSH] Sending to user=${userId}, subscriptions=${subscriptions.length}`);
 
   for (const sub of subscriptions) {
     try {
@@ -74,11 +78,12 @@ export async function sendPushNotification(userId, title, body, url) {
         url: url || '/',
         icon: '/icon.png',
       }));
+      console.log(`[PUSH] Sent successfully to ${sub.endpoint.substring(0, 50)}...`);
     } catch (err) {
       if (err.statusCode === 404 || err.statusCode === 410) {
         await db.run('DELETE FROM push_subscriptions WHERE endpoint = $1', [sub.endpoint]);
       }
-      console.error(`[PUSH] Failed to send to ${sub.endpoint}:`, err.message);
+      console.error(`[PUSH] Failed to send to ${sub.endpoint.substring(0, 50)}...:`, err.message);
     }
   }
 }
