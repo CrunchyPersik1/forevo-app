@@ -483,15 +483,26 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
                                   auth: btoa(String.fromCharCode(...new Uint8Array(sub.getKey('auth')))),
                                 },
                               });
+                              alert('Push-уведомления включены!');
                             }
                           }
-                        } catch (err) { console.error('Push subscribe error:', err); }
+                        } catch (err) {
+                          console.error('Push subscribe error:', err);
+                          alert('Ошибка: ' + err.message);
+                        }
                       }
                     }
                   } else {
-                    if ('Notification' in window) {
-                      await Notification.requestPermission();
-                    }
+                    try {
+                      const reg = await navigator.serviceWorker?.ready;
+                      if (reg) {
+                        const sub = await reg.pushManager.getSubscription();
+                        if (sub) {
+                          await api.unsubscribePush({ endpoint: sub.endpoint });
+                          await sub.unsubscribe();
+                        }
+                      }
+                    } catch {}
                   }
                 }}
               />
