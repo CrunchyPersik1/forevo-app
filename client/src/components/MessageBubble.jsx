@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Avatar from './Avatar';
 import PhotoViewer from './PhotoViewer';
 import { formatTime, formatFileSize } from '../utils';
+import { api } from '../api';
 
 const REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🔥'];
 
@@ -13,6 +14,20 @@ export default function MessageBubble({
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(message.content || '');
   const [viewPhoto, setViewPhoto] = useState(null);
+  const [reported, setReported] = useState(false);
+
+  const handleReport = async () => {
+    const reason = prompt('Причина жалобы:');
+    if (!reason) return;
+    try {
+      await api.reportMessage(message.id, reason);
+      setReported(true);
+      setShowMenu(false);
+      alert('Жалоба отправлена. Спасибо!');
+    } catch (e) {
+      alert('Ошибка: ' + e.message);
+    }
+  };
   useEffect(() => {
     if (editing) setEditText(message.content || '');
   }, [message.content, editing]);
@@ -103,6 +118,9 @@ export default function MessageBubble({
               {message.type === 'voice' && message.attachments?.map(a => (
                 <audio key={a.id} src={a.url} controls className="msg-audio" preload="metadata" type="audio/webm" />
               ))}
+              {message.type === 'video' && message.attachments?.map(a => (
+                <video key={a.id} src={a.url} controls className="msg-video" preload="metadata" />
+              ))}
               {message.type === 'file' && message.attachments?.map(a => (
                 <a key={a.id} href={a.url} download={a.originalName} className="msg-file">
                   <span>📎</span>
@@ -161,6 +179,12 @@ export default function MessageBubble({
             )}
             {isOwn && !message.deletedAt && (
               <button className="danger" onClick={() => { onDelete(message.id); setShowMenu(false); }}>🗑 Удалить</button>
+            )}
+            {!isOwn && !reported && (
+              <button className="danger" onClick={handleReport}>🚨 Пожаловаться</button>
+            )}
+            {reported && (
+              <button disabled style={{ opacity: 0.5 }}>✅ Жалоба отправлена</button>
             )}
           </div>
         </>

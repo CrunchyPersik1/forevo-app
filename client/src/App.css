@@ -148,6 +148,31 @@
   transform: translateY(0);
 }
 
+.auth-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.auth-checkbox input[type="checkbox"] {
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.auth-link {
+  color: var(--accent);
+  text-decoration: underline;
+  background: none;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+
 /* === Chat List === */
 .notif-banner {
   background: linear-gradient(135deg, var(--accent), var(--accent-hover));
@@ -710,6 +735,13 @@
   width: 240px;
   height: 40px;
   border-radius: 8px;
+}
+
+.msg-video {
+  max-width: 320px;
+  max-height: 240px;
+  border-radius: 12px;
+  cursor: pointer;
 }
 
 .msg-file {

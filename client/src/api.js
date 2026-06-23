@@ -79,4 +79,5 @@ export const api = {
   getVapidKey: () => request('/push/vapid-key'),
   subscribePush: (subscription) => request('/push/subscribe', { method: 'POST', body: JSON.stringify(subscription) }),
   unsubscribePush: (endpoint) => request('/push/subscribe', { method: 'DELETE', body: JSON.stringify({ endpoint }) }),
+  reportMessage: (messageId, reason) => request(`/messages/${messageId}/report`, { method: 'POST', body: JSON.stringify({ reason }) }),
 };

@@ -6,6 +6,7 @@ export default function Auth({ onAuth }) {
   const [form, setForm] = useState({ login: '', email: '', username: '', password: '', displayName: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -13,6 +14,7 @@ export default function Auth({ onAuth }) {
     if (mode === 'register') {
       const uErr = validateUsername(form.username);
       if (uErr) { setError(uErr); return; }
+      if (!agreed) { setError('Необходимо принять условия использования'); return; }
     }
     setLoading(true);
     try {
@@ -55,6 +57,14 @@ export default function Auth({ onAuth }) {
               />
               <input placeholder="Email" type="email" value={form.email} onChange={set('email')} required />
               <input placeholder="Отображаемое имя" value={form.displayName} onChange={set('displayName')} />
+              <label className="auth-checkbox">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={e => setAgreed(e.target.checked)}
+                />
+                <span>Мне исполнилось 14 лет и я принимаю <button type="button" className="auth-link" onClick={() => {}}>Условия использования</button></span>
+              </label>
             </>
           )}
           <input placeholder="Пароль" type="password" value={form.password} onChange={set('password')} required minLength={8} />

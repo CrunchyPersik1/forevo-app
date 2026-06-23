@@ -85,7 +85,7 @@ async function initDB() {
       chat_id TEXT NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
       sender_id TEXT REFERENCES users(id),
       content TEXT,
-      type TEXT NOT NULL DEFAULT 'text' CHECK(type IN ('text', 'image', 'file', 'voice', 'system')),
+      type TEXT NOT NULL DEFAULT 'text' CHECK(type IN ('text', 'image', 'file', 'voice', 'video', 'system')),
       reply_to_id TEXT REFERENCES messages(id),
       forwarded_from_chat_id TEXT REFERENCES chats(id),
       mentions TEXT[] DEFAULT '{}',
@@ -139,6 +139,15 @@ async function initDB() {
       endpoint TEXT NOT NULL UNIQUE,
       keys TEXT NOT NULL,
       created_at BIGINT DEFAULT EXTRACT(EPOCH FROM NOW()) * 1000
+    );
+
+    CREATE TABLE IF NOT EXISTS reports (
+      id TEXT PRIMARY KEY,
+      reporter_id TEXT NOT NULL REFERENCES users(id),
+      message_id TEXT REFERENCES messages(id),
+      reason TEXT NOT NULL,
+      status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'reviewed', 'dismissed')),
+      created_at BIGINT NOT NULL
     );
   `);
 

@@ -15,7 +15,8 @@ router.use(authMiddleware);
 
 const ALLOWED_UPLOAD_TYPES = [
   'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-  'audio/webm', 'audio/ogg', 'audio/mpeg',
+  'audio/webm', 'audio/ogg', 'audio/mpeg', 'audio/mp4',
+  'video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo',
   'application/pdf', 'application/zip', 'text/plain',
 ];
 
@@ -29,9 +30,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 50 * 1024 * 1024 },
+  limits: { fileSize: 100 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
-    const ok = ALLOWED_UPLOAD_TYPES.includes(file.mimetype) || file.mimetype.startsWith('image/') || file.mimetype.startsWith('audio/');
+    const ok = ALLOWED_UPLOAD_TYPES.includes(file.mimetype) || file.mimetype.startsWith('image/') || file.mimetype.startsWith('audio/') || file.mimetype.startsWith('video/');
     cb(ok ? null : new Error('File type not allowed'), ok);
   },
 });
@@ -355,9 +356,38 @@ router.delete('/:id/pin', async (req, res) => {
   }
 });
 
+router.post('/:id/report', async (req, res) => {
+  try {
+    const { reason } = req.body;
+    if (!reason || !reason.trim()) return res.status(400).json({ error: 'Reason required' });
+
+    const msg = await db.get('SELECT * FROM messages WHERE id = $1', [req.params.id]);
+    if (!msg) return res.status(404).json({ error: 'Message not found' });
+    if (!(await isMember(msg.chat_id, req.userId))) return res.status(403).json({ error: 'Not a member' });
+
+    const existing = await db.get(
+      'SELECT id FROM reports WHERE reporter_id = $1 AND message_id = $2',
+      [req.userId, msg.id]
+    );
+    if (existing) return res.status(409).json({ error: 'Already reported' });
+
+    await db.run(
+      'INSERT INTO reports (id, reporter_id, message_id, reason, created_at) VALUES ($1, $2, $3, $4, $5)',
+      [require('crypto').randomUUID(), req.userId, msg.id, reason.trim(), Date.now()]
+    );
+
+    console.log(`[REPORT] User ${req.userId} reported message ${msg.id}: ${reason.trim()}`);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('POST /messages/:id/report error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 function guessType(mime) {
   if (mime.startsWith('image/')) return 'image';
   if (mime.startsWith('audio/')) return 'voice';
+  if (mime.startsWith('video/')) return 'video';
   return 'file';
 }
 

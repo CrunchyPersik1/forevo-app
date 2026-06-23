@@ -123,7 +123,17 @@ router.post('/me/avatar', (req, res, next) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
   const now = Date.now();
-  const avatarUrl = `/avatars/${req.userId}.webp?v=${now}`;
+  let avatarUrl;
+
+  if (req.file.size < 500 * 1024) {
+    const data = fs.readFileSync(req.file.path);
+    const base64 = `data:${req.file.mimetype};base64,${data.toString('base64')}`;
+    avatarUrl = base64;
+    try { fs.unlinkSync(req.file.path); } catch {}
+  } else {
+    avatarUrl = `/avatars/${req.userId}.webp?v=${now}`;
+  }
+
   await db.run('UPDATE users SET avatar = $1, last_avatar_update = $2 WHERE id = $3', [avatarUrl, now, req.userId]);
 
   const updated = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
