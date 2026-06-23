@@ -84,15 +84,25 @@ export default function App() {
   }, []);
 
   const requestNotificationPermission = async () => {
-    if ('Notification' in window && Notification.permission !== 'granted') {
-      const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        await subscribePush();
-        alert('Уведомления включены!');
-      }
-    } else if (Notification.permission === 'granted') {
-      await subscribePush();
-      alert('Уведомления уже включены! Push-подписка обновлена.');
+    console.log('[NOTIF] Requesting permission, current:', Notification.permission);
+    if (!('Notification' in window)) {
+      alert('Ваш браузер не поддерживает уведомления. Попробуйте Chrome или Edge.');
+      return;
+    }
+    if (Notification.permission === 'granted') {
+      alert('Уведомления уже включены!');
+      return;
+    }
+    if (Notification.permission === 'denied') {
+      alert('Уведомления заблокированы. Разрешите их в настройках браузера.');
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    console.log('[NOTIF] Permission result:', permission);
+    if (permission === 'granted') {
+      alert('Уведомления включены!');
+    } else {
+      alert('Уведомления не были разрешены.');
     }
   };
 
@@ -138,21 +148,20 @@ export default function App() {
   };
 
   const showBrowserNotification = (title, body, url) => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.ready.then(reg => {
-          reg.showNotification(title, {
-            body,
-            icon: '/icon.png',
-            badge: '/icon.png',
-            vibrate: [100, 50, 100],
-            data: url || '/',
-            tag: 'forevo',
-          });
-        });
-      } else {
-        new Notification(title, { body, icon: '/icon.png', tag: 'forevo' });
-      }
+    console.log('[NOTIF] Attempting notification:', title, body, 'Permission:', Notification.permission);
+    if (!('Notification' in window)) {
+      console.log('[NOTIF] Notification API not available');
+      return;
+    }
+    if (Notification.permission !== 'granted') {
+      console.log('[NOTIF] Permission not granted:', Notification.permission);
+      return;
+    }
+    try {
+      new Notification(title, { body, icon: '/icon.png', tag: 'forevo-' + Date.now() });
+      console.log('[NOTIF] Notification shown successfully');
+    } catch (err) {
+      console.error('[NOTIF] Failed to show notification:', err);
     }
   };
 
