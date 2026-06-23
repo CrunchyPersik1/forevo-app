@@ -2,6 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { v4 as uuid } from 'uuid';
 import { uploadsDir, db } from '../db.js';
 import { authMiddleware } from '../auth.js';
@@ -374,7 +375,7 @@ router.post('/:id/report', async (req, res) => {
 
     await db.run(
       'INSERT INTO reports (id, reporter_id, message_id, reason, created_at) VALUES ($1, $2, $3, $4, $5)',
-      [require('crypto').randomUUID(), req.userId, msg.id, reason.trim(), Date.now()]
+      [crypto.randomUUID(), req.userId, msg.id, reason.trim(), Date.now()]
     );
 
     console.log(`[REPORT] User ${req.userId} reported message ${msg.id}: ${reason.trim()}`);

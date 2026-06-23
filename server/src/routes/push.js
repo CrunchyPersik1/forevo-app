@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import crypto from 'crypto';
 import webpush from 'web-push';
 import { db } from '../db.js';
 import { authMiddleware } from '../auth.js';
@@ -31,7 +32,7 @@ router.post('/subscribe', async (req, res) => {
       await db.run('UPDATE push_subscriptions SET user_id = $1, keys = $2 WHERE endpoint = $3', [req.userId, JSON.stringify(keys), endpoint]);
     } else {
       await db.run('INSERT INTO push_subscriptions (id, user_id, endpoint, keys) VALUES ($1, $2, $3, $4)',
-        [require('crypto').randomUUID(), req.userId, endpoint, JSON.stringify(keys)]);
+        [crypto.randomUUID(), req.userId, endpoint, JSON.stringify(keys)]);
     }
 
     res.json({ ok: true });
