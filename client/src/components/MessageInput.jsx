@@ -13,7 +13,7 @@ const STICKERS = [
   '🥴', '🤡', '💀', '👻', '🎃', '😈', '👹', '👺',
   '🤖', '👽', '🧠', '💜', '🖤', '🤍', '💔', '❣️',
   '💘', '💝', '💖', '💗', '💞', '💕', '💓', '💟',
-  '🏳️‍🌈', '🏴‍☠️', '🇺🇳', '☮️', '☯️', '✡️', '☪️', '🕉️',
+  '🏳️\u200d🌈', '🏴\u200d☠️', '🇺🇳', '☮️', '☯️', '✡️', '☪️', '🕉️',
 ];
 
 export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply, members, chatId }) {
@@ -35,6 +35,7 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
   const textareaRef = useRef(null);
   const chatIdRef = useRef(chatId);
   chatIdRef.current = chatId;
+  const recordingRef = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -130,35 +131,57 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
   };
 
   const startRecording = async () => {
+    if (recordingRef.current) return;
+    recordingRef.current = true;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      const recorder = new MediaRecorder(stream);
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
       chunksRef.current = [];
-      recorder.ondataavailable = (e) => chunksRef.current.push(e.data);
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
       recorder.onstop = async () => {
+        if (chunksRef.current.length === 0) {
+          stream.getTracks().forEach(t => t.stop());
+          streamRef.current = null;
+          recordingRef.current = false;
+          return;
+        }
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        if (blob.size < 1000) {
+          stream.getTracks().forEach(t => t.stop());
+          streamRef.current = null;
+          recordingRef.current = false;
+          return;
+        }
         const fd = new FormData();
         fd.append('files', blob, 'voice.webm');
         fd.append('type', 'voice');
         await onSend(fd);
         stream.getTracks().forEach(t => t.stop());
         streamRef.current = null;
+        recordingRef.current = false;
       };
       recorderRef.current = recorder;
-      recorder.start();
+      recorder.start(1000);
       setRecording(true);
     } catch (e) {
+      recordingRef.current = false;
       if (e.name === 'NotAllowedError') {
-        alert('Доступ к микрофону запрещён. Разрешите доступ в настройках браузера.');
+        alert('Доступ к микрофону запрещён.');
       } else {
-        alert('Не удалось получить доступ к микрофону: ' + e.message);
+        alert('Ошибка микрофона: ' + e.message);
       }
     }
   };
 
   const stopRecording = () => {
-    recorderRef.current?.stop();
+    if (!recordingRef.current) return;
+    recordingRef.current = false;
+    if (recorderRef.current?.state === 'recording') {
+      recorderRef.current.stop();
+    }
     setRecording(false);
   };
 
@@ -245,12 +268,8 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
         ) : (
           <button
             className={`send-btn ${recording ? 'recording' : ''}`}
-            onMouseDown={startRecording}
-            onMouseUp={stopRecording}
-            onMouseLeave={recording ? stopRecording : undefined}
-            onTouchStart={startRecording}
-            onTouchEnd={stopRecording}
-            title="Удерживайте для записи"
+            onClick={recording ? stopRecording : startRecording}
+            title={recording ? 'Остановить запись' : 'Нажмите для записи голосового'}
           >
             {recording ? '🔴' : '🎤'}
           </button>

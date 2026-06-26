@@ -257,6 +257,8 @@
   flex: 1;
   overflow-y: auto;
   padding-bottom: 40px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .chat-list-empty {
