@@ -1,7 +1,7 @@
 import Avatar from './Avatar';
 import { formatTime } from '../utils';
 
-export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewChat, onNewGroup, onProfile, themeIcon, onToggleTheme, onRequestNotifications }) {
+export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewChat, onNewGroup, onProfile, onRequestNotifications }) {
   const notifGranted = typeof Notification !== 'undefined' && Notification.permission === 'granted';
 
   return (
@@ -20,12 +20,13 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
       </div>
 
       <div className="chat-list-search">
-        <input placeholder="Поиск чатов..." readOnly onClick={onNewChat} />
+        <input placeholder="Поиск" readOnly onClick={onNewChat} />
       </div>
 
       <div className="chat-list-items">
         {chats.length === 0 && (
           <div className="chat-list-empty">
+            <div className="chat-empty-icon">💬</div>
             <p>Нет чатов</p>
             <button onClick={onNewChat}>Начать общение</button>
           </div>
@@ -41,9 +42,15 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
                 ? '📷 Фото'
                 : chat.lastMessage?.type === 'voice'
                   ? '🎤 Голосовое'
-                  : chat.lastMessage?.type === 'file'
-                    ? '📎 Файл'
-                    : chat.lastMessage?.content || 'Нет сообщений';
+                  : chat.lastMessage?.type === 'video'
+                    ? '🎬 Видео'
+                    : chat.lastMessage?.type === 'file'
+                      ? '📎 Файл'
+                      : chat.lastMessage?.content || 'Нет сообщений';
+
+          const senderPrefix = chat.type === 'group' && chat.lastMessage && !chat.lastMessage.deletedAt
+            ? `${chat.lastMessage.senderName?.split(' ')[0]}: `
+            : '';
 
           return (
             <button
@@ -51,7 +58,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
               className={`chat-item ${activeChat?.id === chat.id ? 'active' : ''}`}
               onClick={() => onSelect(chat)}
             >
-              <Avatar user={{ id: chat.id, displayName: chat.name, avatar: chat.avatar }} online={isOnline} />
+              <Avatar user={{ id: chat.id, displayName: chat.name, avatar: chat.avatar }} online={isOnline} size={52} />
               <div className="chat-item-info">
                 <div className="chat-item-top">
                   <span
@@ -65,7 +72,9 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
                   )}
                 </div>
                 <div className="chat-item-bottom">
-                  <span className="chat-item-preview">{preview}</span>
+                  <span className="chat-item-preview">
+                    {senderPrefix}{preview}
+                  </span>
                   {chat.unreadCount > 0 && (
                     <span className="chat-item-badge">{chat.unreadCount}</span>
                   )}
@@ -81,7 +90,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
           rel="noopener noreferrer"
           className="chat-item pinned-item"
         >
-          <div className="avatar" style={{ width: 48, height: 48, background: '#0088cc', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}>
+          <div className="avatar" style={{ width: 52, height: 52, background: '#0088cc', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}>
             ✈️
           </div>
           <div className="chat-item-info">
@@ -95,7 +104,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
         </a>
 
         <div className="chat-item pinned-item crunchycorp-item">
-          <div className="avatar" style={{ width: 48, height: 48, background: 'linear-gradient(135deg, #ff6b6b, #ffa502)', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', color: '#fff' }}>
+          <div className="avatar" style={{ width: 52, height: 52, background: 'linear-gradient(135deg, #ff6b6b, #ffa502)', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', color: '#fff', flexShrink: 0 }}>
             CC
           </div>
           <div className="chat-item-info">

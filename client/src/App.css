@@ -362,8 +362,8 @@
 
 .chat-list-version {
   text-align: center;
-  padding: 12px;
-  font-size: 11px;
+  padding: var(--sp-3);
+  font-size: var(--font-size-xs);
   color: var(--text-muted);
   border-top: 1px solid var(--border);
 }
