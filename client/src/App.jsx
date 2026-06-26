@@ -600,11 +600,8 @@ export default function App() {
           activeChat={activeChat}
           onlineUsers={onlineUsers}
           onSelect={handleSelectChat}
-          onNewChat={() => setShowSearch(true)}
           onNewGroup={() => setShowGroup(true)}
           onProfile={() => setShowProfile(true)}
-          themeIcon={themeIcon}
-          onToggleTheme={toggleTheme}
           onRequestNotifications={requestNotificationPermission}
         />
       </div>

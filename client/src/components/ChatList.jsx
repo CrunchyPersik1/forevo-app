@@ -14,10 +14,8 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
       <div className="chat-list-header">
         <h2>Чаты</h2>
         <div className="chat-list-actions">
-          <button className="icon-btn" onClick={onToggleTheme} title="Сменить тему">{themeIcon}</button>
           <button className="icon-btn" onClick={onNewGroup} title="Новая группа">👥</button>
-          <button className="icon-btn" onClick={onNewChat} title="Новый чат">✏️</button>
-          <button className="icon-btn" onClick={onProfile} title="Профиль">⚙️</button>
+          <button className="icon-btn" onClick={onProfile} title="Профиль">👤</button>
         </div>
       </div>
 
