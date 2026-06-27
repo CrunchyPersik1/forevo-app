@@ -12,6 +12,8 @@ import GroupSettings from './components/GroupSettings';
 import ForwardModal from './components/ForwardModal';
 import Changelog from './components/Changelog';
 import BottomNav from './components/BottomNav';
+import Icon from './components/Icon';
+import Avatar from './components/Avatar';
 import './App.css';
 
 function applyUserToChats(chats, updatedUser, myId) {
