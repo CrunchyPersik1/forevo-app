@@ -49,7 +49,11 @@ export default function App() {
   const [showArchive, setShowArchive] = useState(false);
 
   const archivedIds = useRef(new Set(JSON.parse(localStorage.getItem('forevo-archived') || '[]')));
-  const saveArchive = () => localStorage.setItem('forevo-archived', JSON.stringify([...archivedIds.current]));
+  const [archivedVersion, setArchivedVersion] = useState(0);
+  const saveArchive = () => {
+    localStorage.setItem('forevo-archived', JSON.stringify([...archivedIds.current]));
+    setArchivedVersion(v => v + 1);
+  };
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -758,30 +762,32 @@ export default function App() {
         />
       )}
       {showArchive && (
-        <div className="modal-overlay" style={{ zIndex: 300 }} onClick={() => setShowArchive(false)}>
-          <div className="modal" style={{ maxHeight: '80vh' }} onClick={e => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={() => setShowArchive(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Архив</h3>
-              <button onClick={() => setShowArchive(false)}><Icon name="x" size={20} /></button>
+              <button onClick={() => setShowArchive(false)}>✕</button>
             </div>
-            <div className="modal-list" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-              {chats.filter(c => archivedIds.current.has(c.id)).length === 0 && (
-                <div className="modal-empty">Нет заархивированных чатов</div>
-              )}
-              {chats.filter(c => archivedIds.current.has(c.id)).map(chat => (
-                <button key={chat.id} className="modal-item" onClick={() => {
-                  archivedIds.current.delete(chat.id);
-                  saveArchive();
-                  setChats(prev => prev.map(c => c.id === chat.id ? { ...c } : c));
-                  setShowArchive(false);
-                }}>
-                  <Avatar user={{ id: chat.id, displayName: chat.name, avatar: chat.avatar }} size={36} />
-                  <div>
-                    <div className="modal-item-name">{chat.name}</div>
-                    <div className="modal-item-sub">Нажмите чтобы разархивировать</div>
-                  </div>
-                </button>
-              ))}
+            <div className="modal-list">
+              <div className="modal-empty">
+                {chats.filter(c => archivedIds.current.has(c.id)).length === 0
+                  ? 'Нет заархивированных чатов'
+                  : chats.filter(c => archivedIds.current.has(c.id)).map(chat => (
+                    <div key={chat.id} className="modal-item" style={{ cursor: 'pointer' }} onClick={() => {
+                      archivedIds.current.delete(chat.id);
+                      saveArchive();
+                      setChats(prev => prev.map(c => c.id === chat.id ? { ...c } : c));
+                      setShowArchive(false);
+                    }}>
+                      <Avatar user={{ id: chat.id, displayName: chat.name, avatar: chat.avatar }} size={36} />
+                      <div>
+                        <div className="modal-item-name">{chat.name}</div>
+                        <div className="modal-item-sub">Нажмите чтобы разархивировать</div>
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
             </div>
           </div>
         </div>
