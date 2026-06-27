@@ -75,7 +75,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
       </div>
 
       <div className="chat-list-search">
-        <input placeholder="Поиск" readOnly onClick={onNewGroup} />
+        <input placeholder="Поиск" readOnly onClick={() => {}} />
       </div>
 
       <div className="chat-list-items">

@@ -471,9 +471,10 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
             <label>Размер чатов в списке</label>
             <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
               {[
-                { value: '40px', label: 'Маленькие' },
-                { value: '46px', label: 'Средние' },
-                { value: '52px', label: 'Большие' },
+                { value: '36px', label: 'XS' },
+                { value: '40px', label: 'S' },
+                { value: '46px', label: 'M' },
+                { value: '52px', label: 'L' },
               ].map(opt => (
                 <button key={opt.value}
                   className={`status-option ${avatarUser.chatSize === opt.value || (!avatarUser.chatSize && opt.value === '46px') ? 'active' : ''}`}
