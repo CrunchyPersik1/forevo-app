@@ -889,7 +889,7 @@
 .selected-chip:hover { background: var(--danger); color: white; border-color: var(--danger); }
 
 /* === Profile === */
-.profile-modal { max-width: 420px; overflow: hidden; }
+.profile-modal { max-width: 420px; }
 
 .profile-gradient {
   position: absolute;
