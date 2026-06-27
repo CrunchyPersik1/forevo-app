@@ -184,6 +184,12 @@ async function initDB() {
   if (!userColNames.includes('badges')) {
     await pool.query(`ALTER TABLE users ADD COLUMN badges TEXT[] DEFAULT '{}'`);
   }
+  if (!userColNames.includes('bubble_radius')) {
+    await pool.query("ALTER TABLE users ADD COLUMN bubble_radius TEXT DEFAULT '16px'");
+  }
+  if (!userColNames.includes('chat_size')) {
+    await pool.query("ALTER TABLE users ADD COLUMN chat_size TEXT DEFAULT '46px'");
+  }
 
   const themeCols = await pool.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'profile_themes'`);
   const themeColNames = themeCols.rows.map(r => r.column_name);

@@ -7,12 +7,14 @@ import { validateUsername, formatRegistrationDate } from '../utils';
 const BIO_MAX = 150;
 
 const THEMES = [
-  { id: 'dark-purple', name: 'Фиолетовая (тёмная)', preview: 'linear-gradient(135deg, #0f0f14, #6c5ce7)' },
-  { id: 'dark-blue', name: 'Синяя (тёмная)', preview: 'linear-gradient(135deg, #0d1117, #2196f3)' },
-  { id: 'dark-green', name: 'Зелёная (тёмная)', preview: 'linear-gradient(135deg, #0e1621, #00a884)' },
-  { id: 'light-purple', name: 'Фиолетовая (светлая)', preview: 'linear-gradient(135deg, #ffffff, #6c5ce7)' },
-  { id: 'light-blue', name: 'Синяя (светлая)', preview: 'linear-gradient(135deg, #ffffff, #2196f3)' },
-  { id: 'light-green', name: 'Зелёная (светлая)', preview: 'linear-gradient(135deg, #ffffff, #00a884)' },
+  { id: 'dark-purple', name: 'Тёмная фиолетовая', preview: 'linear-gradient(135deg, #0f0f14, #6c5ce7)' },
+  { id: 'dark-blue', name: 'Тёмная синяя', preview: 'linear-gradient(135deg, #0d1117, #2196f3)' },
+  { id: 'dark-green', name: 'Тёмная зелёная', preview: 'linear-gradient(135deg, #0e1621, #00a884)' },
+  { id: 'light-purple', name: 'Светлая фиолетовая', preview: 'linear-gradient(135deg, #ffffff, #6c5ce7)' },
+  { id: 'light-blue', name: 'Светлая синяя', preview: 'linear-gradient(135deg, #ffffff, #2196f3)' },
+  { id: 'light-green', name: 'Светлая зелёная', preview: 'linear-gradient(135deg, #ffffff, #00a884)' },
+  { id: 'dark', name: 'Тёмная', preview: 'linear-gradient(135deg, #0f0f14, #1a1a2e)' },
+  { id: 'light', name: 'Светлая', preview: 'linear-gradient(135deg, #ffffff, #f0f0f0)' },
 ];
 
 const GRADIENTS = [
@@ -438,6 +440,53 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
                 >
                   <span className={`status-dot ${s.dot}`} />
                   {s.label}
+                </button>
+              ))}
+            </div>
+
+            <label>Размер углов сообщений</label>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+              {[
+                { value: '4px', label: 'Маленькие' },
+                { value: '12px', label: 'Средние' },
+                { value: '20px', label: 'Большие' },
+                { value: '24px', label: 'Максимум' },
+              ].map(opt => (
+                <button key={opt.value}
+                  className={`status-option ${avatarUser.bubbleRadius === opt.value || (!avatarUser.bubbleRadius && opt.value === '16px') ? 'active' : ''}`}
+                  onClick={async () => {
+                    try {
+                      const updated = await api.updateBubbleRadius(opt.value);
+                      setAvatarUser(updated);
+                      await onSave(updated, { silent: true });
+                      document.documentElement.style.setProperty('--msg-radius', opt.value);
+                    } catch (e) { alert(e.message); }
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            <label>Размер чатов в списке</label>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+              {[
+                { value: '40px', label: 'Маленькие' },
+                { value: '46px', label: 'Средние' },
+                { value: '52px', label: 'Большие' },
+              ].map(opt => (
+                <button key={opt.value}
+                  className={`status-option ${avatarUser.chatSize === opt.value || (!avatarUser.chatSize && opt.value === '46px') ? 'active' : ''}`}
+                  onClick={async () => {
+                    try {
+                      const updated = await api.updateChatSize(opt.value);
+                      setAvatarUser(updated);
+                      await onSave(updated, { silent: true });
+                      document.documentElement.style.setProperty('--chat-avatar-size', opt.value);
+                    } catch (e) { alert(e.message); }
+                  }}
+                >
+                  {opt.label}
                 </button>
               ))}
             </div>

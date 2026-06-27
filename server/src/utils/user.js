@@ -38,6 +38,8 @@ export function publicUser(row, extras = {}) {
     profileGradient: row.profile_gradient ?? null,
     profileSound: row.profile_sound ?? 0,
     badges: row.badges ?? [],
+    bubbleRadius: row.bubble_radius ?? '16px',
+    chatSize: row.chat_size ?? '46px',
     ...extras,
   };
 }

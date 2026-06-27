@@ -225,6 +225,20 @@ router.patch('/me/sound', async (req, res) => {
   res.json(publicUser(updated));
 });
 
+router.patch('/me/bubble-radius', async (req, res) => {
+  const { radius } = req.body;
+  await db.run('UPDATE users SET bubble_radius = $1 WHERE id = $2', [radius || '16px', req.userId]);
+  const updated = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
+  res.json(publicUser(updated));
+});
+
+router.patch('/me/chat-size', async (req, res) => {
+  const { size } = req.body;
+  await db.run('UPDATE users SET chat_size = $1 WHERE id = $2', [size || '46px', req.userId]);
+  const updated = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
+  res.json(publicUser(updated));
+});
+
 router.get('/search', async (req, res) => {
   const q = (req.query.q || '').trim().toLowerCase();
   if (!q) return res.json([]);
