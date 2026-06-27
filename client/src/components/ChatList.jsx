@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Avatar from './Avatar';
 import { formatTime } from '../utils';
 
-export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewGroup, onProfile, onRequestNotifications, onArchive, onDeleteChats, onMarkAllRead, onOpenFavorites }) {
+export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewGroup, onProfile, onRequestNotifications, onArchive, onDeleteChats, onMarkAllRead, onOpenFavorites, onOpenArchive }) {
   const [editMode, setEditMode] = useState(false);
   const [selected, setSelected] = useState(new Set());
   const notifGranted = typeof Notification !== 'undefined' && Notification.permission === 'granted';
@@ -46,11 +46,12 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
         {isMobile ? (
           <>
             {editMode ? (
-              <button className="text-btn" onClick={() => { setEditMode(false); setSelected(new Set()); }}>Готово</button>
+              <button className="text-btn edit-btn" onClick={() => { setEditMode(false); setSelected(new Set()); }}>Готово</button>
             ) : (
-              <button className="text-btn" onClick={() => setEditMode(true)}>Изменить</button>
+              <button className="text-btn edit-btn" onClick={() => setEditMode(true)}>Изм.</button>
             )}
-            <h2>Чаты</h2>
+            <h2 className="chat-list-title">Чаты</h2>
+            <div style={{ width: 40 }} />
           </>
         ) : (
           <>
@@ -59,6 +60,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
               <h2>Чаты</h2>
             </div>
             <div className="chat-list-header-right">
+              <button className="icon-btn" onClick={onNewGroup} title="Новая группа">👥</button>
               {editMode ? (
                 <button className="text-btn" onClick={() => { setEditMode(false); setSelected(new Set()); }}>Готово</button>
               ) : (
@@ -70,17 +72,10 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
       </div>
 
       <div className="chat-list-search">
-        <input placeholder="Поиск" onClick={() => onNewGroup()} readOnly />
+        <input placeholder="Поиск" readOnly onClick={() => onNewGroup()} />
       </div>
 
       <div className="chat-list-items">
-        {chats.length === 0 && !editMode && (
-          <div className="chat-list-empty">
-            <div className="chat-empty-icon">💬</div>
-            <p>Нет чатов</p>
-          </div>
-        )}
-
         <button className="chat-item favorites-item" onClick={onOpenFavorites}>
           <div className="avatar" style={{ width: 46, height: 46, background: 'linear-gradient(135deg, #ffa502, #ff6348)', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}>
             📝
@@ -91,6 +86,20 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
             </div>
             <div className="chat-item-bottom">
               <span className="chat-item-preview">Ваши заметки и избранное</span>
+            </div>
+          </div>
+        </button>
+
+        <button className="chat-item archive-folder" onClick={onOpenArchive}>
+          <div className="avatar" style={{ width: 46, height: 46, background: 'var(--bg-tertiary)', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}>
+            📂
+          </div>
+          <div className="chat-item-info">
+            <div className="chat-item-top">
+              <span className="chat-item-name">Архив</span>
+            </div>
+            <div className="chat-item-bottom">
+              <span className="chat-item-preview">{chats.filter(c => c.archived).length} чат(ов)</span>
             </div>
           </div>
         </button>
@@ -152,32 +161,6 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
             </button>
           );
         })}
-
-        {chats.filter(c => c.archived).length > 0 && (
-          <div className="archive-section">
-            <span className="archive-label">📥 Архив ({chats.filter(c => c.archived).length})</span>
-            {chats.filter(c => c.archived).map(chat => {
-              const other = chat.type === 'direct' ? chat.members.find(m => m.id !== chat._myId) : null;
-              return (
-                <button
-                  key={chat.id}
-                  className="chat-item archived"
-                  onClick={() => onSelect(chat)}
-                >
-                  <Avatar user={{ id: chat.id, displayName: chat.name, avatar: chat.avatar }} size={40} />
-                  <div className="chat-item-info">
-                    <div className="chat-item-top">
-                      <span className="chat-item-name" style={{ opacity: 0.6 }}>{chat.name}</span>
-                    </div>
-                    <div className="chat-item-bottom">
-                      <span className="chat-item-preview" style={{ opacity: 0.5 }}>В архиве</span>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        )}
 
         <a
           href="https://t.me/ForevoM"

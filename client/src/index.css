@@ -184,23 +184,23 @@
 
 /* === Dark (no color) === */
 [data-theme="dark"] {
-  --bg-primary: #0f0f14;
-  --bg-secondary: #16161e;
-  --bg-tertiary: #1e1e2a;
-  --bg-hover: #252533;
-  --bg-active: #2d2d3d;
-  --accent: #6c5ce7;
-  --accent-hover: #7c6ef0;
-  --accent-glow: rgba(108, 92, 231, 0.25);
-  --accent-subtle: rgba(108, 92, 231, 0.08);
-  --text-primary: #f0f0f5;
-  --text-secondary: #8e8ea0;
-  --text-muted: #5a5a72;
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1c1c1c;
+  --bg-hover: #252525;
+  --bg-active: #333333;
+  --accent: #4a9eff;
+  --accent-hover: #6bb3ff;
+  --accent-glow: rgba(74, 158, 255, 0.2);
+  --accent-subtle: rgba(74, 158, 255, 0.06);
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-muted: #666666;
   --border: rgba(255, 255, 255, 0.08);
   --success: #34c759;
   --danger: #ff3b30;
-  --msg-out: #3a3a50;
-  --msg-in: #1c1c2e;
+  --msg-out: #2a2a2a;
+  --msg-in: #1c1c1c;
 }
 
 /* === Light (no color) === */

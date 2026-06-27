@@ -458,6 +458,10 @@
   background: var(--accent-subtle);
 }
 
+.archive-folder {
+  border-bottom: 1px solid var(--border);
+}
+
 .archive-section {
   border-top: 1px solid var(--border);
   padding-top: var(--sp-2);
@@ -2018,6 +2022,20 @@
   .chat-list-header {
     padding: var(--sp-3) var(--sp-4);
     padding-top: max(var(--sp-3), env(safe-area-inset-top));
+    justify-content: space-between;
+  }
+
+  .chat-list-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    text-align: center;
+    flex: 1;
+  }
+
+  .edit-btn {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    padding: var(--sp-2) var(--sp-3);
   }
 
   .chat-list-header h2 { font-size: var(--font-size-xl); }

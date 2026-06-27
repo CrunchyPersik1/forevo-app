@@ -46,6 +46,7 @@ export default function App() {
   const [notifEnabled, setNotifEnabled] = useState(() => typeof Notification !== 'undefined' && Notification.permission === 'granted');
   const [activeTab, setActiveTab] = useState('chats');
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [showArchive, setShowArchive] = useState(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -628,13 +629,18 @@ export default function App() {
             setChats(prev => prev.map(c => ({ ...c, unreadCount: 0 })));
           }}
           onOpenFavorites={() => {
-            const favChat = chats.find(c => c.name === 'Избранное' && c.type === 'direct' && c.createdBy === user.id);
-            if (favChat) {
-              handleSelectChat(favChat);
+            let favChat = chats.find(c => c.name === 'Избранное' && c.type === 'direct' && c.createdBy === user.id);
+            if (!favChat) {
+              api.createDirect(user.id).then(chat => {
+                api.updateGroup(chat.id, { name: 'Избранное' });
+                setChats(prev => [{ ...chat, name: 'Избранное', _myId: user.id }, ...prev]);
+                handleSelectChat({ ...chat, name: 'Избранное', _myId: user.id });
+              });
             } else {
-              handleCreateGroup('Избранное', []);
+              handleSelectChat(favChat);
             }
           }}
+          onOpenArchive={() => setShowArchive(true)}
         />
       </div>
 
@@ -751,6 +757,35 @@ export default function App() {
           }}
           onSettings={() => setShowProfile(true)}
         />
+      )}
+      {showArchive && (
+        <div className="modal-overlay" onClick={() => setShowArchive(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>📥 Архив</h3>
+              <button onClick={() => setShowArchive(false)}>✕</button>
+            </div>
+            <div className="modal-list">
+              {chats.filter(c => c.archived).length === 0 ? (
+                <div className="modal-empty">Нет заархивированных чатов</div>
+              ) : (
+                chats.filter(c => c.archived).map(chat => (
+                  <button key={chat.id} className="modal-item" onClick={() => {
+                    setChats(prev => prev.map(c => c.id === chat.id ? { ...c, archived: false } : c));
+                    handleSelectChat(chat);
+                    setShowArchive(false);
+                  }}>
+                    <Avatar user={{ id: chat.id, displayName: chat.name, avatar: chat.avatar }} size={36} />
+                    <div>
+                      <div className="modal-item-name">{chat.name}</div>
+                      <div className="modal-item-sub">Разархивировать</div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
