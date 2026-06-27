@@ -49,11 +49,6 @@ export default function App() {
   const [showArchive, setShowArchive] = useState(false);
 
   const archivedIds = useRef(new Set(JSON.parse(localStorage.getItem('forevo-archived') || '[]')));
-  const [archivedVersion, setArchivedVersion] = useState(0);
-  const saveArchive = () => {
-    localStorage.setItem('forevo-archived', JSON.stringify([...archivedIds.current]));
-    setArchivedVersion(v => v + 1);
-  };
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -623,7 +618,7 @@ export default function App() {
           archivedIds={archivedIds.current}
           onArchive={(ids) => {
             ids.forEach(id => archivedIds.current.add(id));
-            saveArchive();
+            localStorage.setItem('forevo-archived', JSON.stringify([...archivedIds.current]));
             setChats(prev => prev.map(c => archivedIds.current.has(c.id) ? { ...c, archived: true } : c));
           }}
           onDeleteChats={(ids) => {
@@ -640,7 +635,7 @@ export default function App() {
           }}
           onArchive={(ids) => {
             ids.forEach(id => archivedIds.current.add(id));
-            saveArchive();
+            localStorage.setItem('forevo-archived', JSON.stringify([...archivedIds.current]));
             setChats(prev => prev.map(c => archivedIds.current.has(c.id) ? { ...c, archived: true } : c));
           }}
           onOpenArchive={() => setShowArchive(true)}
@@ -775,7 +770,7 @@ export default function App() {
                   : chats.filter(c => archivedIds.current.has(c.id)).map(chat => (
                     <div key={chat.id} className="modal-item" style={{ cursor: 'pointer' }} onClick={() => {
                       archivedIds.current.delete(chat.id);
-                      saveArchive();
+                      localStorage.setItem('forevo-archived', JSON.stringify([...archivedIds.current]));
                       setChats(prev => prev.map(c => c.id === chat.id ? { ...c } : c));
                       setShowArchive(false);
                     }}>
