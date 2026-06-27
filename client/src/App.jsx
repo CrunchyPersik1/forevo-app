@@ -45,6 +45,13 @@ export default function App() {
   const [forwardingMessage, setForwardingMessage] = useState(null);
   const [notifEnabled, setNotifEnabled] = useState(() => typeof Notification !== 'undefined' && Notification.permission === 'granted');
   const [activeTab, setActiveTab] = useState('chats');
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const getWallpaper = (chatId) => localStorage.getItem(`forevo-wallpaper-${chatId}`) || null;
   const setWallpaper = (chatId, url) => {
@@ -712,12 +719,14 @@ export default function App() {
           }}
         />
       )}
-      <BottomNav
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        onNewChat={() => setShowSearch(true)}
-        onProfile={() => setShowProfile(true)}
-      />
+      {isMobile && (
+        <BottomNav
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onNewChat={() => setShowSearch(true)}
+          onProfile={() => setShowProfile(true)}
+        />
+      )}
     </div>
   );
 }
