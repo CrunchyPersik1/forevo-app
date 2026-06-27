@@ -634,16 +634,10 @@ export default function App() {
           onMarkAllRead={() => {
             setChats(prev => prev.map(c => ({ ...c, unreadCount: 0 })));
           }}
-          onOpenFavorites={() => {
-            let favChat = chats.find(c => c.name === 'Избранное' && c.type === 'group' && c.createdBy === user.id);
-            if (!favChat) {
-              api.createGroup('Избранное', []).then(chat => {
-                setChats(prev => [{ ...chat, _myId: user.id }, ...prev]);
-                handleSelectChat({ ...chat, _myId: user.id });
-              }).catch(() => {});
-            } else {
-              handleSelectChat(favChat);
-            }
+          onArchive={(ids) => {
+            ids.forEach(id => archivedIds.current.add(id));
+            saveArchive();
+            setChats(prev => prev.map(c => archivedIds.current.has(c.id) ? { ...c, archived: true } : c));
           }}
           onOpenArchive={() => setShowArchive(true)}
         />
@@ -753,7 +747,7 @@ export default function App() {
           }}
         />
       )}
-      {isMobile && (
+      {isMobile && activeTab === 'chats' && !mobileShowChat && (
         <BottomNav
           activeTab={activeTab}
           onTabChange={(tab) => {
@@ -767,7 +761,7 @@ export default function App() {
         <div className="modal-overlay" onClick={() => setShowArchive(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>📥 Архив</h3>
+              <h3>Архив</h3>
               <button onClick={() => setShowArchive(false)}>✕</button>
             </div>
             <div className="modal-list">
@@ -790,6 +784,10 @@ export default function App() {
                   </button>
                 ))
               )}
+            </div>
+          </div>
+        </div>
+      )}
             </div>
           </div>
         </div>

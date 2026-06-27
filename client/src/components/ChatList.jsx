@@ -3,7 +3,7 @@ import Avatar from './Avatar';
 import Icon from './Icon';
 import { formatTime } from '../utils';
 
-export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewGroup, onProfile, onRequestNotifications, onArchive, onDeleteChats, onMarkAllRead, onOpenFavorites, onOpenArchive, archivedIds }) {
+export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewGroup, onProfile, onRequestNotifications, onArchive, onDeleteChats, onMarkAllRead, onOpenArchive, archivedIds }) {
   const [editMode, setEditMode] = useState(false);
   const [selected, setSelected] = useState(new Set());
   const notifGranted = typeof Notification !== 'undefined' && Notification.permission === 'granted';
@@ -41,7 +41,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
     <div className="chat-list">
       {!notifGranted && (
         <div className="notif-banner" onClick={onRequestNotifications}>
-          🔔 Включить уведомления
+          <Icon name="bell" size={16} /> Включить уведомления
         </div>
       )}
 
@@ -54,7 +54,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
               <button className="text-btn edit-btn" onClick={() => setEditMode(true)}>Изм.</button>
             )}
             <h2 className="chat-list-title">Чаты</h2>
-            <button className="icon-btn" onClick={onNewGroup} title="Новая группа">👥</button>
+            <button className="icon-btn" onClick={onNewGroup} title="Новая группа"><Icon name="circle-plus" size={20} /></button>
           </>
         ) : (
           <>
@@ -63,7 +63,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
               <h2>Чаты</h2>
             </div>
             <div className="chat-list-header-right">
-            <button className="icon-btn" onClick={onNewGroup} title="Новая группа"><Icon name="circle-plus" size={20} /></button>
+              <button className="icon-btn" onClick={onNewGroup} title="Новая группа"><Icon name="circle-plus" size={20} /></button>
               {editMode ? (
                 <button className="text-btn" onClick={() => { setEditMode(false); setSelected(new Set()); }}>Готово</button>
               ) : (
@@ -79,23 +79,9 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
       </div>
 
       <div className="chat-list-items">
-        <button className="chat-item favorites-item" onClick={onOpenFavorites}>
-          <div className="avatar" style={{ width: 46, height: 46, background: 'linear-gradient(135deg, #ffa502, #ff6348)', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}>
-            📝
-          </div>
-          <div className="chat-item-info">
-            <div className="chat-item-top">
-              <span className="chat-item-name">Избранное</span>
-            </div>
-            <div className="chat-item-bottom">
-              <span className="chat-item-preview">Ваши заметки и избранное</span>
-            </div>
-          </div>
-        </button>
-
         <button className="chat-item archive-folder" onClick={onOpenArchive}>
           <div className="avatar" style={{ width: 46, height: 46, background: 'var(--bg-tertiary)', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}>
-            📂
+            <Icon name="archive" size={22} />
           </div>
           <div className="chat-item-info">
             <div className="chat-item-top">
@@ -131,12 +117,12 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
           return (
             <button
               key={chat.id}
-              className={'chat-item ' + (activeChat?.id === chat.id ? 'active ' : '') + (selected.has(chat.id) ? 'selected' : '')}
+              className={'chat-item ' + (activeChat?.id === chat.id ? 'active ' : '') + (selected.has(chat.id) ? 'selected ' : '') + (isMobile ? 'chat-item-bubble' : '')}
               onClick={() => editMode ? toggleSelect(chat.id) : onSelect(chat)}
             >
               {editMode && (
                 <div className={'chat-select ' + (selected.has(chat.id) ? 'checked' : '')}>
-                  {selected.has(chat.id) ? '✓' : ''}
+                  {selected.has(chat.id) ? <Icon name="check" size={14} /> : ''}
                 </div>
               )}
               <Avatar user={{ id: chat.id, displayName: chat.name, avatar: chat.avatar }} online={isOnline} size={46} />

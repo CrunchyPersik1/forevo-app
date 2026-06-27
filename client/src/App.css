@@ -264,6 +264,16 @@
 .chat-item.active { background: var(--accent-subtle); }
 .chat-item:active { background: var(--bg-active); }
 
+.chat-item-bubble {
+  border-radius: var(--radius-lg);
+  margin: var(--sp-1) var(--sp-3);
+  border-bottom: none;
+  background: var(--bg-tertiary);
+}
+
+.chat-item-bubble:hover { background: var(--bg-hover); }
+.chat-item-bubble.active { background: var(--accent-subtle); }
+
 .chat-item-info { flex: 1; min-width: 0; }
 
 .chat-item-top {
