@@ -183,7 +183,7 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
               ✏️ Изменить профиль
             </button>
             <button className="modal-submit" style={{ width: '100%', margin: 0, marginBottom: 8, background: 'var(--bg-tertiary)', color: 'var(--text-primary)', border: '1px solid var(--border)' }} onClick={() => setScreen('custom')}>
-              🎨 Кастомизация
+              🎨 Оформление
             </button>
           </div>
 

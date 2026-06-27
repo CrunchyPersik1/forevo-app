@@ -745,27 +745,3 @@ export default function App() {
     </div>
   );
 }
-          }}
-          onDelete={(chatId) => {
-            setChats(prev => prev.filter(c => c.id !== chatId));
-            chatMessagesRef.current.delete(chatId);
-            if (activeChat?.id === chatId) {
-              setActiveChat(null);
-              activeChatIdRef.current = null;
-              setDisplayMessages([]);
-            }
-          }}
-        />
-      )}
-      {forwardingMessage && (
-        <ForwardModal
-          chats={chats}
-          user={user}
-          onSelect={handleForwardToChat}
-          onClose={() => setForwardingMessage(null)}
-        />
-      )}
-      <Changelog />
-    </div>
-  );
-}
