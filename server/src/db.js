@@ -172,6 +172,9 @@ async function initDB() {
   if (!userColNames.includes('user_status')) {
     await pool.query("ALTER TABLE users ADD COLUMN user_status TEXT DEFAULT 'online'");
   }
+  if (!userColNames.includes('profile_emojis')) {
+    await pool.query("ALTER TABLE users ADD COLUMN profile_emojis TEXT[] DEFAULT '{✨,💫,⭐,🌟,💖,💜,🔮,💎}'");
+  }
   if (!userColNames.includes('foreiki')) {
     await pool.query('ALTER TABLE users ADD COLUMN foreiki INTEGER DEFAULT 0');
   }

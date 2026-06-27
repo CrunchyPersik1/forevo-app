@@ -1,10 +1,25 @@
 import { useState, useEffect } from 'react';
 import Avatar from './Avatar';
+import Icon from './Icon';
 import { api } from '../api';
 import { formatLastSeen, formatRegistrationDate } from '../utils';
 import { playProfileSound } from './Profile';
 
-const RARITY_COLORS = { common: '#8b949e', rare: '#2196f3', epic: '#9c27b0', legendary: '#ff9800', exclusive: '#ffd700' };
+const FLOATING_EMOJIS_DEFAULT = ['✨', '💫', '⭐', '🌟', '💖', '💜', '🔮', '💎'];
+
+function FloatingEmojis({ emojis }) {
+  return (
+    <div className="floating-emojis">
+      {emojis.map((e, i) => (
+        <span key={i} className="floating-emoji" style={{
+          left: `${10 + Math.random() * 80}%`,
+          animationDelay: `${i * 0.7}s`,
+          animationDuration: `${4 + Math.random() * 3}s`,
+        }}>{e}</span>
+      ))}
+    </div>
+  );
+}
 
 export default function UserProfile({
   userId, currentUser, onlineUsers, chats, onClose, onOpenChat, onBlockChange,
@@ -38,11 +53,8 @@ export default function UserProfile({
       const chat = existingChat || await api.createDirect(userId);
       onOpenChat(chat);
       onClose();
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setActionLoading(false);
-    }
+    } catch (e) { setError(e.message); }
+    finally { setActionLoading(false); }
   };
 
   const handleBlock = async () => {
@@ -52,19 +64,13 @@ export default function UserProfile({
         await api.unblockUser(userId);
         setProfile(p => ({ ...p, iBlocked: false, isBlocked: false }));
       } else {
-        if (!confirm('Заблокировать пользователя? Вы не сможете обмениваться сообщениями.')) {
-          setActionLoading(false);
-          return;
-        }
+        if (!confirm('Заблокировать пользователя?')) { setActionLoading(false); return; }
         await api.blockUser(userId);
         setProfile(p => ({ ...p, iBlocked: true, isBlocked: true }));
       }
       onBlockChange?.();
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setActionLoading(false);
-    }
+    } catch (e) { setError(e.message); }
+    finally { setActionLoading(false); }
   };
 
   if (loading) {
@@ -81,53 +87,62 @@ export default function UserProfile({
     return (
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal profile-modal" onClick={e => e.stopPropagation()}>
-          <div className="modal-empty">{error || 'Пользователь не найден'}</div>
+          <div className="modal-empty">{error || 'Не найдено'}</div>
         </div>
       </div>
     );
   }
 
+  const emojis = profile.profileEmojis?.length ? profile.profileEmojis : FLOATING_EMOJIS_DEFAULT;
+
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal profile-modal" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <h3>Профиль</h3>
-          <button onClick={onClose}>✕</button>
-        </div>
+      <div className="modal profile-modal" onClick={e => e.stopPropagation()} style={{ position: 'relative', overflow: 'hidden' }}>
+        <FloatingEmojis emojis={emojis} />
 
-        <div className="profile-avatar-section">
-          <Avatar user={profile} size={96} online={isOnline} lazy={false} />
-          <h3
-            className={profile.nicknameColor === 'rainbow' ? 'nickname-rainbow' : profile.nicknameColor === 'gradient' ? 'nickname-gradient' : ''}
-            style={profile.nicknameColor && profile.nicknameColor !== 'rainbow' && profile.nicknameColor !== 'gradient' ? { color: profile.nicknameColor } : undefined}
-          >
-            {profile.isModerator && <span className="mod-badge">⭐</span>}
-            {profile.displayName}
-          </h3>
-          <p>@{profile.username}</p>
-          <p className="profile-status">
-            {isOnline ? 'в сети' : formatLastSeen(profile.lastSeen)}
-          </p>
-          {profile.bio && <p className="profile-bio">{profile.bio}</p>}
-          <p className="profile-joined">На сайте с {formatRegistrationDate(profile.createdAt)}</p>
-        </div>
-
-        {error && <div className="auth-error" style={{ margin: '0 20px' }}>{error}</div>}
-
-        {!isSelf && (
-          <div className="profile-actions">
-            <button className="modal-submit" onClick={handleMessage} disabled={actionLoading || profile.isBlocked}>
-              {existingChat ? 'Открыть чат' : 'Написать сообщение'}
-            </button>
-            <button
-              className={`block-btn ${profile.iBlocked ? 'unblock' : ''}`}
-              onClick={handleBlock}
-              disabled={actionLoading}
-            >
-              {profile.iBlocked ? 'Разблокировать' : 'Заблокировать'}
-            </button>
+        <div className="profile-header">
+          <div className="profile-avatar-section">
+            <div className="profile-avatar-ring">
+              <Avatar user={profile} size={110} online={isOnline} lazy={false} />
+            </div>
+            <h3 className="profile-name">
+              {profile.isModerator && <span className="mod-badge">⭐</span>}
+              {profile.displayName}
+              <span className="verification-badge" title="Верифицирован">✓</span>
+            </h3>
+            <p className="profile-username">@{profile.username}</p>
+            <div className="profile-status-row">
+              <span className={`status-dot ${profile.userStatus || 'online'}`} />
+              <span>{isOnline ? 'в сети' : formatLastSeen(profile.lastSeen)}</span>
+            </div>
           </div>
-        )}
+        </div>
+
+        <div className="profile-content">
+          <div className="profile-card">
+            <div className="profile-card-row">
+              <Icon name="globe" size={18} />
+              <span>На сайте с {formatRegistrationDate(profile.createdAt)}</span>
+            </div>
+            {profile.bio && (
+              <div className="profile-card-row">
+                <Icon name="mail" size={18} />
+                <span>{profile.bio}</span>
+              </div>
+            )}
+          </div>
+
+          {!isSelf && (
+            <div className="profile-actions">
+              <button className="profile-action-btn primary" onClick={handleMessage} disabled={actionLoading || profile.isBlocked}>
+                <Icon name="message-square" size={18} /> Написать
+              </button>
+              <button className="profile-action-btn" onClick={handleBlock} disabled={actionLoading}>
+                <Icon name="shield" size={18} /> {profile.iBlocked ? 'Разблокировать' : 'Заблокировать'}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

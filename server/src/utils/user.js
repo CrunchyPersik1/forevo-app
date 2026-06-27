@@ -40,6 +40,7 @@ export function publicUser(row, extras = {}) {
     badges: row.badges ?? [],
     bubbleRadius: row.bubble_radius ?? '16px',
     chatSize: row.chat_size ?? '46px',
+    profileEmojis: row.profile_emojis ?? ['✨', '💫', '⭐', '🌟', '💖', '💜', '🔮', '💎'],
     ...extras,
   };
 }

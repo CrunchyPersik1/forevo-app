@@ -73,6 +73,7 @@ export const api = {
   updateNotifications: (emailNotifications) => request('/users/me/notifications', { method: 'PATCH', body: JSON.stringify({ emailNotifications }) }),
   updateNicknameColor: (color) => request('/users/me/nickname-color', { method: 'PATCH', body: JSON.stringify({ color }) }),
   updateAvatarEmoji: (emoji) => request('/users/me/avatar-emoji', { method: 'PATCH', body: JSON.stringify({ emoji }) }),
+  updateFallingEmojis: (emojis) => request('/users/me/falling-emojis', { method: 'PATCH', body: JSON.stringify({ emojis }) }),
   updateStatus: (status) => request('/users/me/status', { method: 'PATCH', body: JSON.stringify({ status }) }),
   updateGradient: (gradient) => request('/users/me/gradient', { method: 'PATCH', body: JSON.stringify({ gradient }) }),
   updateSound: (sound) => request('/users/me/sound', { method: 'PATCH', body: JSON.stringify({ sound }) }),

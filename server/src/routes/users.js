@@ -210,6 +210,15 @@ router.patch('/me/status', async (req, res) => {
   res.json(publicUser(updated));
 });
 
+router.patch('/me/falling-emojis', async (req, res) => {
+  const { emojis } = req.body;
+  if (!Array.isArray(emojis) || emojis.length > 8) return res.status(400).json({ error: 'Invalid emojis' });
+  await db.run('UPDATE users SET profile_emojis = $1 WHERE id = $2', [emojis, req.userId]);
+  const updated = await db.get('SELECT * FROM users WHERE id = $1', [req.userId]);
+  emitUserUpdated(req.app.locals.io, updated);
+  res.json(publicUser(updated));
+});
+
 router.patch('/me/gradient', async (req, res) => {
   const { gradient } = req.body;
   await db.run('UPDATE users SET profile_gradient = $1 WHERE id = $2', [gradient || null, req.userId]);

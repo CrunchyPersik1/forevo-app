@@ -324,8 +324,21 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
               ))}
             </div>
 
-            <label className="toggle-row">
-              <span>Email-уведомления</span>
+            <label>Падающие эмодзи</label>
+            <div className="emoji-picker-row">
+              {['✨', '💫', '⭐', '🌟', '💖', '💜', '🔮', '💎', '🍑', '🔥', '❄️', '🌸', '🍀', '🦋', '🎵', '💎'].map(e => (
+                <button key={e} className={`emoji-dot ${avatarUser.profileEmojis?.includes(e) ? 'active' : ''}`}
+                  onClick={async () => {
+                    const current = avatarUser.profileEmojis || ['✨', '💫', '⭐', '🌟', '💖', '💜', '🔮', '💎'];
+                    const next = current.includes(e) ? current.filter(x => x !== e) : [...current.slice(0, 7), e];
+                    try {
+                      const u = await api.updateFallingEmojis(next);
+                      setAvatarUser(u);
+                      await onSave(u, { silent: true });
+                    } catch {}
+                  }}>{e}</button>
+              ))}
+            </div>
               <input type="checkbox" checked={avatarUser.emailNotifications !== false}
                 onChange={async (e) => { try { const u = await api.updateNotifications(e.target.checked); setAvatarUser(u); await onSave(u, { silent: true }); } catch {} }} />
             </label>

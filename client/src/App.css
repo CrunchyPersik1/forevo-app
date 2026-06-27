@@ -823,6 +823,9 @@
   animation: scaleIn 0.25s ease;
 }
 
+.modal::-webkit-scrollbar { width: 6px; }
+.modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
 .modal-header {
   display: flex;
   align-items: center;
@@ -943,6 +946,23 @@
   font-size: 22px;
   font-weight: 700;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.verification-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: #2196f3;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 .profile-username {
