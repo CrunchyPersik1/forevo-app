@@ -58,7 +58,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
               className={`chat-item ${activeChat?.id === chat.id ? 'active' : ''}`}
               onClick={() => onSelect(chat)}
             >
-              <Avatar user={{ id: chat.id, displayName: chat.name, avatar: chat.avatar }} online={isOnline} size={52} />
+              <Avatar user={{ id: chat.id, displayName: chat.name, avatar: chat.avatar }} online={isOnline} size={46} />
               <div className="chat-item-info">
                 <div className="chat-item-top">
                   <span
@@ -90,7 +90,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
           rel="noopener noreferrer"
           className="chat-item pinned-item"
         >
-          <div className="avatar" style={{ width: 52, height: 52, background: '#0088cc', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}>
+          <div className="avatar" style={{ width: 46, height: 46, background: '#0088cc', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}>
             ✈️
           </div>
           <div className="chat-item-info">
@@ -104,7 +104,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
         </a>
 
         <div className="chat-item pinned-item crunchycorp-item">
-          <div className="avatar" style={{ width: 52, height: 52, background: 'linear-gradient(135deg, #ff6b6b, #ffa502)', fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', color: '#fff', flexShrink: 0 }}>
+          <div className="avatar" style={{ width: 46, height: 46, background: 'linear-gradient(135deg, #ff6b6b, #ffa502)', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', color: '#fff', flexShrink: 0 }}>
             CC
           </div>
           <div className="chat-item-info">

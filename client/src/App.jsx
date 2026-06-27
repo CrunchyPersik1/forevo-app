@@ -11,6 +11,7 @@ import UserProfile from './components/UserProfile';
 import GroupSettings from './components/GroupSettings';
 import ForwardModal from './components/ForwardModal';
 import Changelog from './components/Changelog';
+import BottomNav from './components/BottomNav';
 import './App.css';
 
 function applyUserToChats(chats, updatedUser, myId) {
@@ -43,6 +44,7 @@ export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('forevo-theme') || 'dark-purple');
   const [forwardingMessage, setForwardingMessage] = useState(null);
   const [notifEnabled, setNotifEnabled] = useState(() => typeof Notification !== 'undefined' && Notification.permission === 'granted');
+  const [activeTab, setActiveTab] = useState('chats');
 
   const getWallpaper = (chatId) => localStorage.getItem(`forevo-wallpaper-${chatId}`) || null;
   const setWallpaper = (chatId, url) => {
@@ -698,6 +700,27 @@ export default function App() {
               activeChatIdRef.current = null;
               setDisplayMessages([]);
             }
+          }}
+          onDelete={(chatId) => {
+            setChats(prev => prev.filter(c => c.id !== chatId));
+            chatMessagesRef.current.delete(chatId);
+            if (activeChat?.id === chatId) {
+              setActiveChat(null);
+              activeChatIdRef.current = null;
+              setDisplayMessages([]);
+            }
+          }}
+        />
+      )}
+      <BottomNav
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onNewChat={() => setShowSearch(true)}
+        onProfile={() => setShowProfile(true)}
+      />
+    </div>
+  );
+}
           }}
           onDelete={(chatId) => {
             setChats(prev => prev.filter(c => c.id !== chatId));
