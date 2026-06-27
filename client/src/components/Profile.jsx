@@ -339,6 +339,9 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
                   }}>{e}</button>
               ))}
             </div>
+
+            <label className="toggle-row">
+              <span>Email-уведомления</span>
               <input type="checkbox" checked={avatarUser.emailNotifications !== false}
                 onChange={async (e) => { try { const u = await api.updateNotifications(e.target.checked); setAvatarUser(u); await onSave(u, { silent: true }); } catch {} }} />
             </label>

@@ -635,11 +635,6 @@ export default function App() {
           onMarkAllRead={() => {
             setChats(prev => prev.map(c => ({ ...c, unreadCount: 0 })));
           }}
-          onArchive={(ids) => {
-            ids.forEach(id => archivedIds.current.add(id));
-            localStorage.setItem('forevo-archived', JSON.stringify([...archivedIds.current]));
-            setChats(prev => prev.map(c => archivedIds.current.has(c.id) ? { ...c, archived: true } : c));
-          }}
           onOpenArchive={() => setShowArchive(true)}
         />
       </div>
