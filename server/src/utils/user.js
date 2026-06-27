@@ -32,6 +32,7 @@ export function publicUser(row, extras = {}) {
     emailNotifications: row.email_notifications ?? true,
     nicknameColor: row.nickname_color ?? null,
     isModerator: row.is_moderator ?? false,
+    verified: row.verified ?? false,
     avatarEmoji: row.avatar_emoji ?? null,
     userStatus: row.user_status ?? 'online',
     foreiki: row.foreiki ?? 0,

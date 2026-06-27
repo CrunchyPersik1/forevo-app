@@ -175,6 +175,9 @@ async function initDB() {
   if (!userColNames.includes('profile_emojis')) {
     await pool.query("ALTER TABLE users ADD COLUMN profile_emojis TEXT[] DEFAULT '{✨,💫,⭐,🌟,💖,💜,🔮,💎}'");
   }
+  if (!userColNames.includes('verified')) {
+    await pool.query('ALTER TABLE users ADD COLUMN verified BOOLEAN DEFAULT false');
+  }
   if (!userColNames.includes('foreiki')) {
     await pool.query('ALTER TABLE users ADD COLUMN foreiki INTEGER DEFAULT 0');
   }
@@ -213,7 +216,7 @@ async function initDB() {
 
   const crunchy = await db.get('SELECT id FROM users WHERE username = $1', ['crunchypersik']);
   if (crunchy) {
-    await db.run('UPDATE users SET is_moderator = true WHERE id = $1', [crunchy.id]);
+    await db.run('UPDATE users SET is_moderator = true, verified = true WHERE id = $1', [crunchy.id]);
   }
 }
 

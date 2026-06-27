@@ -108,7 +108,7 @@ export default function UserProfile({
             <h3 className="profile-name">
               {profile.isModerator && <span className="mod-badge">⭐</span>}
               {profile.displayName}
-              <span className="verification-badge" title="Верифицирован">✓</span>
+              {profile.verified && <span className="verification-badge" title="Верифицирован">✓</span>}
             </h3>
             <p className="profile-username">@{profile.username}</p>
             <div className="profile-status-row">
