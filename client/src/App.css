@@ -235,6 +235,7 @@
 .chat-list-items {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-bottom: 20px;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -253,6 +254,7 @@
   align-items: center;
   gap: var(--sp-3);
   width: 100%;
+  min-width: 0;
   padding: var(--sp-2) var(--sp-5);
   text-align: left;
   transition: background var(--transition-fast);
@@ -266,17 +268,18 @@
 .chat-item:active { background: var(--bg-active); }
 
 .chat-item-bubble {
-  border-radius: var(--radius-lg);
-  margin: var(--sp-1) var(--sp-3);
+  border-radius: 24px;
+  margin: var(--sp-1) var(--sp-2);
   border-bottom: none;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.chat-item-bubble:hover { background: rgba(255, 255, 255, 0.06); }
-.chat-item-bubble.active { background: rgba(108, 92, 231, 0.08); border-color: rgba(108, 92, 231, 0.15); }
+.chat-item-bubble:hover { background: rgba(255, 255, 255, 0.07); }
+.chat-item-bubble.active { background: rgba(108, 92, 231, 0.1); border-color: rgba(108, 92, 231, 0.2); }
 
 .chat-item-info { flex: 1; min-width: 0; }
 

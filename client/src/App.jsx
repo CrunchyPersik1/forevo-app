@@ -613,7 +613,7 @@ export default function App() {
           activeChat={activeChat}
           onlineUsers={onlineUsers}
           onSelect={handleSelectChat}
-          onNewGroup={() => setShowGroup(true)}
+          onNewGroup={() => setShowSearch(true)}
           onProfile={() => setShowProfile(true)}
           onRequestNotifications={requestNotificationPermission}
           archivedIds={archivedIds.current}
