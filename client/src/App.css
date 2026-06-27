@@ -201,11 +201,34 @@
   border-bottom: 1px solid var(--border);
 }
 
+.chat-list-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
 .chat-list-header h2 {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   letter-spacing: -0.3px;
 }
+
+.chat-list-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.text-btn {
+  color: var(--accent);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.text-btn:hover { background: var(--accent-subtle); }
 
 .chat-list-actions {
   display: flex;
@@ -239,11 +262,11 @@
   width: 100%;
   padding: 10px 16px;
   background: var(--bg-tertiary);
-  border-radius: var(--radius);
-  font-size: 14px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
   color: var(--text-primary);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--transition-fast);
 }
 
 .chat-list-search input:hover {
@@ -367,6 +390,53 @@
   color: var(--text-muted);
   border-top: 1px solid var(--border);
 }
+
+/* Edit Mode */
+.chat-select {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.chat-select.checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.chat-item.selected {
+  background: var(--accent-subtle);
+}
+
+.edit-actions {
+  display: flex;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+.edit-action-btn {
+  flex: 1;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.edit-action-btn:hover { background: var(--bg-hover); }
+.edit-action-btn.danger { color: var(--danger); }
 
 .pinned-item {
   border-top: 1px solid var(--border) !important;

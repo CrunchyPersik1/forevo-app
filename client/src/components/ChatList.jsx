@@ -1,8 +1,37 @@
+import { useState } from 'react';
 import Avatar from './Avatar';
 import { formatTime } from '../utils';
 
-export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewChat, onNewGroup, onProfile, onRequestNotifications }) {
+export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewChat, onNewGroup, onProfile, onRequestNotifications, onArchive, onDeleteChats, onMarkAllRead }) {
+  const [editMode, setEditMode] = useState(false);
+  const [selected, setSelected] = useState(new Set());
   const notifGranted = typeof Notification !== 'undefined' && Notification.permission === 'granted';
+
+  const toggleSelect = (id) => {
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    setSelected(next);
+  };
+
+  const handleDelete = () => {
+    if (selected.size === 0) return;
+    if (!confirm(`Удалить ${selected.size} чат(ов)?`)) return;
+    onDeleteChats?.([...selected]);
+    setSelected(new Set());
+    setEditMode(false);
+  };
+
+  const handleArchive = () => {
+    if (selected.size === 0) return;
+    onArchive?.([...selected]);
+    setSelected(new Set());
+    setEditMode(false);
+  };
+
+  const handleReadAll = () => {
+    onMarkAllRead?.();
+    setEditMode(false);
+  };
 
   return (
     <div className="chat-list">
@@ -11,11 +40,18 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
           🔔 Включить уведомления
         </div>
       )}
+
       <div className="chat-list-header">
-        <h2>Чаты</h2>
-        <div className="chat-list-actions">
-          <button className="icon-btn" onClick={onNewGroup} title="Новая группа">👥</button>
-          <button className="icon-btn" onClick={onProfile} title="Профиль">👤</button>
+        <div className="chat-list-header-left">
+          <button className="icon-btn" onClick={onProfile} title="Меню">☰</button>
+          <h2>Чаты</h2>
+        </div>
+        <div className="chat-list-header-right">
+          {editMode ? (
+            <button className="text-btn" onClick={() => { setEditMode(false); setSelected(new Set()); }}>Готово</button>
+          ) : (
+            <button className="icon-btn" onClick={() => setEditMode(true)} title="Изменить">✏️</button>
+          )}
         </div>
       </div>
 
@@ -24,7 +60,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
       </div>
 
       <div className="chat-list-items">
-        {chats.length === 0 && (
+        {chats.length === 0 && !editMode && (
           <div className="chat-list-empty">
             <div className="chat-empty-icon">💬</div>
             <p>Нет чатов</p>
@@ -55,9 +91,14 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
           return (
             <button
               key={chat.id}
-              className={`chat-item ${activeChat?.id === chat.id ? 'active' : ''}`}
-              onClick={() => onSelect(chat)}
+              className={`chat-item ${activeChat?.id === chat.id ? 'active' : ''} ${selected.has(chat.id) ? 'selected' : ''}`}
+              onClick={() => editMode ? toggleSelect(chat.id) : onSelect(chat)}
             >
+              {editMode && (
+                <div className={`chat-select ${selected.has(chat.id) ? 'checked' : ''}`}>
+                  {selected.has(chat.id) ? '✓' : ''}
+                </div>
+              )}
               <Avatar user={{ id: chat.id, displayName: chat.name, avatar: chat.avatar }} online={isOnline} size={46} />
               <div className="chat-item-info">
                 <div className="chat-item-top">
@@ -117,6 +158,14 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
           </div>
         </div>
       </div>
+
+      {editMode && selected.size > 0 && (
+        <div className="edit-actions">
+          <button className="edit-action-btn" onClick={handleReadAll}>✓ Прочитать все</button>
+          <button className="edit-action-btn" onClick={handleArchive}>📥 В архив</button>
+          <button className="edit-action-btn danger" onClick={handleDelete}>🗑 Удалить</button>
+        </div>
+      )}
 
       <div className="chat-list-version">Forevo v1.5.0</div>
     </div>

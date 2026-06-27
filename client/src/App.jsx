@@ -605,13 +605,28 @@ export default function App() {
     <div className="app">
       <div className={`sidebar ${mobileShowChat ? 'hidden-mobile' : ''}`}>
         <ChatList
-          chats={chats}
+          chats={chats.filter(c => !c.archived)}
           activeChat={activeChat}
           onlineUsers={onlineUsers}
           onSelect={handleSelectChat}
           onNewGroup={() => setShowGroup(true)}
           onProfile={() => setShowProfile(true)}
           onRequestNotifications={requestNotificationPermission}
+          onArchive={(ids) => {
+            setChats(prev => prev.map(c => ids.includes(c.id) ? { ...c, archived: true } : c));
+          }}
+          onDeleteChats={(ids) => {
+            setChats(prev => prev.filter(c => !ids.includes(c.id)));
+            ids.forEach(id => chatMessagesRef.current.delete(id));
+            if (ids.includes(activeChat?.id)) {
+              setActiveChat(null);
+              activeChatIdRef.current = null;
+              setDisplayMessages([]);
+            }
+          }}
+          onMarkAllRead={() => {
+            setChats(prev => prev.map(c => ({ ...c, unreadCount: 0 })));
+          }}
         />
       </div>
 
