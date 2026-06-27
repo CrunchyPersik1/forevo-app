@@ -2,10 +2,11 @@ import { useState } from 'react';
 import Avatar from './Avatar';
 import { formatTime } from '../utils';
 
-export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewChat, onNewGroup, onProfile, onRequestNotifications, onArchive, onDeleteChats, onMarkAllRead }) {
+export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewGroup, onProfile, onRequestNotifications, onArchive, onDeleteChats, onMarkAllRead, onOpenFavorites }) {
   const [editMode, setEditMode] = useState(false);
   const [selected, setSelected] = useState(new Set());
   const notifGranted = typeof Notification !== 'undefined' && Notification.permission === 'granted';
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   const toggleSelect = (id) => {
     const next = new Set(selected);
@@ -42,21 +43,34 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
       )}
 
       <div className="chat-list-header">
-        <div className="chat-list-header-left">
-          <button className="icon-btn" onClick={onProfile} title="Меню">☰</button>
-          <h2>Чаты</h2>
-        </div>
-        <div className="chat-list-header-right">
-          {editMode ? (
-            <button className="text-btn" onClick={() => { setEditMode(false); setSelected(new Set()); }}>Готово</button>
-          ) : (
-            <button className="icon-btn" onClick={() => setEditMode(true)} title="Изменить">✏️</button>
-          )}
-        </div>
+        {isMobile ? (
+          <>
+            {editMode ? (
+              <button className="text-btn" onClick={() => { setEditMode(false); setSelected(new Set()); }}>Готово</button>
+            ) : (
+              <button className="text-btn" onClick={() => setEditMode(true)}>Изменить</button>
+            )}
+            <h2>Чаты</h2>
+          </>
+        ) : (
+          <>
+            <div className="chat-list-header-left">
+              <button className="icon-btn" onClick={onProfile} title="Меню">☰</button>
+              <h2>Чаты</h2>
+            </div>
+            <div className="chat-list-header-right">
+              {editMode ? (
+                <button className="text-btn" onClick={() => { setEditMode(false); setSelected(new Set()); }}>Готово</button>
+              ) : (
+                <button className="icon-btn" onClick={() => setEditMode(true)} title="Изменить">✏️</button>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       <div className="chat-list-search">
-        <input placeholder="Поиск" readOnly onClick={onNewChat} />
+        <input placeholder="Поиск" onClick={() => onNewGroup()} readOnly />
       </div>
 
       <div className="chat-list-items">
@@ -64,10 +78,24 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
           <div className="chat-list-empty">
             <div className="chat-empty-icon">💬</div>
             <p>Нет чатов</p>
-            <button onClick={onNewChat}>Начать общение</button>
           </div>
         )}
-        {chats.map(chat => {
+
+        <button className="chat-item favorites-item" onClick={onOpenFavorites}>
+          <div className="avatar" style={{ width: 46, height: 46, background: 'linear-gradient(135deg, #ffa502, #ff6348)', fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', flexShrink: 0 }}>
+            📝
+          </div>
+          <div className="chat-item-info">
+            <div className="chat-item-top">
+              <span className="chat-item-name">Избранное</span>
+            </div>
+            <div className="chat-item-bottom">
+              <span className="chat-item-preview">Ваши заметки и избранное</span>
+            </div>
+          </div>
+        </button>
+
+        {chats.filter(c => !c.archived).map(chat => {
           const other = chat.type === 'direct' ? chat.members.find(m => m.id !== chat._myId) : null;
           const isOnline = other ? onlineUsers.includes(other.id) : false;
           const preview = chat.lastMessage?.type === 'system'
@@ -106,7 +134,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
                     className={`chat-item-name ${other?.nicknameColor === 'rainbow' ? 'nickname-rainbow' : other?.nicknameColor === 'gradient' ? 'nickname-gradient' : ''}`}
                     style={other?.nicknameColor && other.nicknameColor !== 'rainbow' && other.nicknameColor !== 'gradient' ? { color: other.nicknameColor } : undefined}
                   >
-                    {other?.isModerator && '⭐ '}{chat.name}
+                    {other?.isModerator && '⭐ '}{chat.pinned && '📌 '}{chat.name}
                   </span>
                   {chat.lastMessage && (
                     <span className="chat-item-time">{formatTime(chat.lastMessage.createdAt)}</span>
@@ -124,6 +152,32 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
             </button>
           );
         })}
+
+        {chats.filter(c => c.archived).length > 0 && (
+          <div className="archive-section">
+            <span className="archive-label">📥 Архив ({chats.filter(c => c.archived).length})</span>
+            {chats.filter(c => c.archived).map(chat => {
+              const other = chat.type === 'direct' ? chat.members.find(m => m.id !== chat._myId) : null;
+              return (
+                <button
+                  key={chat.id}
+                  className="chat-item archived"
+                  onClick={() => onSelect(chat)}
+                >
+                  <Avatar user={{ id: chat.id, displayName: chat.name, avatar: chat.avatar }} size={40} />
+                  <div className="chat-item-info">
+                    <div className="chat-item-top">
+                      <span className="chat-item-name" style={{ opacity: 0.6 }}>{chat.name}</span>
+                    </div>
+                    <div className="chat-item-bottom">
+                      <span className="chat-item-preview" style={{ opacity: 0.5 }}>В архиве</span>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <a
           href="https://t.me/ForevoM"

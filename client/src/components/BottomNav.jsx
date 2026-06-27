@@ -1,6 +1,4 @@
-import Avatar from './Avatar';
-
-export default function BottomNav({ activeTab, onTabChange, onNewChat, onProfile }) {
+export default function BottomNav({ activeTab, onTabChange, onSettings }) {
   return (
     <div className="bottom-nav">
       <button
@@ -11,18 +9,11 @@ export default function BottomNav({ activeTab, onTabChange, onNewChat, onProfile
         <span className="bottom-nav-label">Чаты</span>
       </button>
       <button
-        className="bottom-nav-item"
-        onClick={onNewChat}
+        className={`bottom-nav-item ${activeTab === 'settings' ? 'active' : ''}`}
+        onClick={onSettings}
       >
-        <span className="bottom-nav-icon">✏️</span>
-        <span className="bottom-nav-label">Новый</span>
-      </button>
-      <button
-        className={`bottom-nav-item ${activeTab === 'profile' ? 'active' : ''}`}
-        onClick={onProfile}
-      >
-        <span className="bottom-nav-icon">👤</span>
-        <span className="bottom-nav-label">Профиль</span>
+        <span className="bottom-nav-icon">⚙️</span>
+        <span className="bottom-nav-label">Настройки</span>
       </button>
     </div>
   );

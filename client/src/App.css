@@ -453,6 +453,30 @@
   opacity: 0.5;
 }
 
+.favorites-item {
+  border-bottom: 1px solid var(--border);
+  background: var(--accent-subtle);
+}
+
+.archive-section {
+  border-top: 1px solid var(--border);
+  padding-top: var(--sp-2);
+}
+
+.archive-label {
+  display: block;
+  padding: var(--sp-2) var(--sp-5);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chat-item.archived {
+  opacity: 0.7;
+}
+
 /* === Avatar === */
 .avatar-wrap {
   position: relative;

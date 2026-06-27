@@ -605,7 +605,7 @@ export default function App() {
     <div className="app">
       <div className={`sidebar ${mobileShowChat ? 'hidden-mobile' : ''}`}>
         <ChatList
-          chats={chats.filter(c => !c.archived)}
+          chats={chats}
           activeChat={activeChat}
           onlineUsers={onlineUsers}
           onSelect={handleSelectChat}
@@ -626,6 +626,14 @@ export default function App() {
           }}
           onMarkAllRead={() => {
             setChats(prev => prev.map(c => ({ ...c, unreadCount: 0 })));
+          }}
+          onOpenFavorites={() => {
+            const favChat = chats.find(c => c.name === 'Избранное' && c.type === 'direct' && c.createdBy === user.id);
+            if (favChat) {
+              handleSelectChat(favChat);
+            } else {
+              handleCreateGroup('Избранное', []);
+            }
           }}
         />
       </div>
@@ -737,9 +745,11 @@ export default function App() {
       {isMobile && (
         <BottomNav
           activeTab={activeTab}
-          onTabChange={setActiveTab}
-          onNewChat={() => setShowSearch(true)}
-          onProfile={() => setShowProfile(true)}
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            if (tab === 'settings') setShowProfile(true);
+          }}
+          onSettings={() => setShowProfile(true)}
         />
       )}
     </div>
