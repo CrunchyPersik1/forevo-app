@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Avatar from './Avatar';
 import { formatTime } from '../utils';
 
-export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewGroup, onProfile, onRequestNotifications, onArchive, onDeleteChats, onMarkAllRead, onOpenFavorites, onOpenArchive }) {
+export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewGroup, onProfile, onRequestNotifications, onArchive, onDeleteChats, onMarkAllRead, onOpenFavorites, onOpenArchive, archivedIds }) {
   const [editMode, setEditMode] = useState(false);
   const [selected, setSelected] = useState(new Set());
   const notifGranted = typeof Notification !== 'undefined' && Notification.permission === 'granted';
@@ -16,23 +16,25 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
 
   const handleDelete = () => {
     if (selected.size === 0) return;
-    if (!confirm(`Удалить ${selected.size} чат(ов)?`)) return;
-    onDeleteChats?.([...selected]);
+    if (!confirm('Удалить ' + selected.size + ' чат(ов)?')) return;
+    onDeleteChats([...selected]);
     setSelected(new Set());
     setEditMode(false);
   };
 
   const handleArchive = () => {
     if (selected.size === 0) return;
-    onArchive?.([...selected]);
+    onArchive([...selected]);
     setSelected(new Set());
     setEditMode(false);
   };
 
   const handleReadAll = () => {
-    onMarkAllRead?.();
+    onMarkAllRead();
     setEditMode(false);
   };
+
+  const archivedCount = archivedIds ? chats.filter(c => archivedIds.has(c.id)).length : 0;
 
   return (
     <div className="chat-list">
@@ -51,7 +53,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
               <button className="text-btn edit-btn" onClick={() => setEditMode(true)}>Изм.</button>
             )}
             <h2 className="chat-list-title">Чаты</h2>
-            <div style={{ width: 40 }} />
+            <button className="icon-btn" onClick={onNewGroup} title="Новая группа">👥</button>
           </>
         ) : (
           <>
@@ -72,7 +74,7 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
       </div>
 
       <div className="chat-list-search">
-        <input placeholder="Поиск" readOnly onClick={() => onNewGroup()} />
+        <input placeholder="Поиск" readOnly onClick={onNewGroup} />
       </div>
 
       <div className="chat-list-items">
@@ -99,12 +101,12 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
               <span className="chat-item-name">Архив</span>
             </div>
             <div className="chat-item-bottom">
-              <span className="chat-item-preview">{chats.filter(c => c.archived).length} чат(ов)</span>
+              <span className="chat-item-preview">{archivedCount} chat(s)</span>
             </div>
           </div>
         </button>
 
-        {chats.filter(c => !c.archived).map(chat => {
+        {chats.filter(c => !archivedIds?.has(c.id)).map(chat => {
           const other = chat.type === 'direct' ? chat.members.find(m => m.id !== chat._myId) : null;
           const isOnline = other ? onlineUsers.includes(other.id) : false;
           const preview = chat.lastMessage?.type === 'system'
@@ -122,17 +124,17 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
                       : chat.lastMessage?.content || 'Нет сообщений';
 
           const senderPrefix = chat.type === 'group' && chat.lastMessage && !chat.lastMessage.deletedAt
-            ? `${chat.lastMessage.senderName?.split(' ')[0]}: `
+            ? chat.lastMessage.senderName?.split(' ')[0] + ': '
             : '';
 
           return (
             <button
               key={chat.id}
-              className={`chat-item ${activeChat?.id === chat.id ? 'active' : ''} ${selected.has(chat.id) ? 'selected' : ''}`}
+              className={'chat-item ' + (activeChat?.id === chat.id ? 'active ' : '') + (selected.has(chat.id) ? 'selected' : '')}
               onClick={() => editMode ? toggleSelect(chat.id) : onSelect(chat)}
             >
               {editMode && (
-                <div className={`chat-select ${selected.has(chat.id) ? 'checked' : ''}`}>
+                <div className={'chat-select ' + (selected.has(chat.id) ? 'checked' : '')}>
                   {selected.has(chat.id) ? '✓' : ''}
                 </div>
               )}
@@ -140,10 +142,10 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
               <div className="chat-item-info">
                 <div className="chat-item-top">
                   <span
-                    className={`chat-item-name ${other?.nicknameColor === 'rainbow' ? 'nickname-rainbow' : other?.nicknameColor === 'gradient' ? 'nickname-gradient' : ''}`}
+                    className={'chat-item-name ' + (other?.nicknameColor === 'rainbow' ? 'nickname-rainbow' : other?.nicknameColor === 'gradient' ? 'nickname-gradient' : '')}
                     style={other?.nicknameColor && other.nicknameColor !== 'rainbow' && other.nicknameColor !== 'gradient' ? { color: other.nicknameColor } : undefined}
                   >
-                    {other?.isModerator && '⭐ '}{chat.pinned && '📌 '}{chat.name}
+                    {(other?.isModerator ? '⭐ ' : '') + (chat.pinned ? '📌 ' : '') + chat.name}
                   </span>
                   {chat.lastMessage && (
                     <span className="chat-item-time">{formatTime(chat.lastMessage.createdAt)}</span>
@@ -203,8 +205,6 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
           <button className="edit-action-btn danger" onClick={handleDelete}>🗑 Удалить</button>
         </div>
       )}
-
-      <div className="chat-list-version">Forevo v1.5.0</div>
     </div>
   );
 }

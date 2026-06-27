@@ -48,6 +48,9 @@ export default function App() {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   const [showArchive, setShowArchive] = useState(false);
 
+  const archivedIds = useRef(new Set(JSON.parse(localStorage.getItem('forevo-archived') || '[]')));
+  const saveArchive = () => localStorage.setItem('forevo-archived', JSON.stringify([...archivedIds.current]));
+
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', check);
@@ -613,8 +616,11 @@ export default function App() {
           onNewGroup={() => setShowGroup(true)}
           onProfile={() => setShowProfile(true)}
           onRequestNotifications={requestNotificationPermission}
+          archivedIds={archivedIds.current}
           onArchive={(ids) => {
-            setChats(prev => prev.map(c => ids.includes(c.id) ? { ...c, archived: true } : c));
+            ids.forEach(id => archivedIds.current.add(id));
+            saveArchive();
+            setChats(prev => prev.map(c => archivedIds.current.has(c.id) ? { ...c, archived: true } : c));
           }}
           onDeleteChats={(ids) => {
             setChats(prev => prev.filter(c => !ids.includes(c.id)));
@@ -629,13 +635,12 @@ export default function App() {
             setChats(prev => prev.map(c => ({ ...c, unreadCount: 0 })));
           }}
           onOpenFavorites={() => {
-            let favChat = chats.find(c => c.name === 'Избранное' && c.type === 'direct' && c.createdBy === user.id);
+            let favChat = chats.find(c => c.name === 'Избранное' && c.type === 'group' && c.createdBy === user.id);
             if (!favChat) {
-              api.createDirect(user.id).then(chat => {
-                api.updateGroup(chat.id, { name: 'Избранное' });
-                setChats(prev => [{ ...chat, name: 'Избранное', _myId: user.id }, ...prev]);
-                handleSelectChat({ ...chat, name: 'Избранное', _myId: user.id });
-              });
+              api.createGroup('Избранное', []).then(chat => {
+                setChats(prev => [{ ...chat, _myId: user.id }, ...prev]);
+                handleSelectChat({ ...chat, _myId: user.id });
+              }).catch(() => {});
             } else {
               handleSelectChat(favChat);
             }
@@ -766,11 +771,13 @@ export default function App() {
               <button onClick={() => setShowArchive(false)}>✕</button>
             </div>
             <div className="modal-list">
-              {chats.filter(c => c.archived).length === 0 ? (
+              {chats.filter(c => archivedIds.current.has(c.id)).length === 0 ? (
                 <div className="modal-empty">Нет заархивированных чатов</div>
               ) : (
-                chats.filter(c => c.archived).map(chat => (
+                chats.filter(c => archivedIds.current.has(c.id)).map(chat => (
                   <button key={chat.id} className="modal-item" onClick={() => {
+                    archivedIds.current.delete(chat.id);
+                    saveArchive();
                     setChats(prev => prev.map(c => c.id === chat.id ? { ...c, archived: false } : c));
                     handleSelectChat(chat);
                     setShowArchive(false);
