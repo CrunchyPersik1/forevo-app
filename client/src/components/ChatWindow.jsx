@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Avatar from './Avatar';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
+import Icon from './Icon';
 import { formatLastSeen } from '../utils';
 
 function getDateLabel(ts) {
@@ -107,19 +108,19 @@ export default function ChatWindow({
   return (
     <div className="chat-window">
       <div className="chat-header">
-        <button className="back-btn" onClick={onBack}>←</button>
+        <button className="back-btn" onClick={onBack}><Icon name="arrow-left" size={20} /></button>
         <Avatar user={headerUser} online={chat.type === 'direct' ? isOnline : undefined} size={36} onClick={handleHeaderClick} />
         <div className="chat-header-info clickable" onClick={handleHeaderClick}>
           <h3>{chat.name}</h3>
           <span className="chat-header-status">{statusText}</span>
         </div>
-        <button className="icon-btn" onClick={() => setShowMenu(!showMenu)} title="Меню">⋮</button>
+        <button className="icon-btn" onClick={() => setShowMenu(!showMenu)} title="Меню"><Icon name="more-vertical" size={20} /></button>
         {showMenu && (
           <>
             <div className="msg-menu-overlay" onClick={() => setShowMenu(false)} />
             <div className="chat-header-menu" onClick={e => e.stopPropagation()}>
               {chat.type === 'group' && (
-                <button onClick={() => { setShowMenu(false); onOpenGroupSettings?.(); }}>⚙️ Настройки группы</button>
+                <button onClick={() => { setShowMenu(false); onOpenGroupSettings?.(); }}><Icon name="settings" size={14} /> Настройки группы</button>
               )}
               {chat.type === 'direct' && other && (
                 <button onClick={() => { setShowMenu(false); onOpenProfile?.(other.id); }}>👤 Профиль</button>

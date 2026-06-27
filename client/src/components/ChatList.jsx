@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Avatar from './Avatar';
+import Icon from './Icon';
 import { formatTime } from '../utils';
 
 export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onNewGroup, onProfile, onRequestNotifications, onArchive, onDeleteChats, onMarkAllRead, onOpenFavorites, onOpenArchive, archivedIds }) {
@@ -58,15 +59,15 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
         ) : (
           <>
             <div className="chat-list-header-left">
-              <button className="icon-btn" onClick={onProfile} title="Меню">☰</button>
+              <button className="icon-btn" onClick={onProfile} title="Меню"><Icon name="menu" size={20} /></button>
               <h2>Чаты</h2>
             </div>
             <div className="chat-list-header-right">
-              <button className="icon-btn" onClick={onNewGroup} title="Новая группа">👥</button>
+            <button className="icon-btn" onClick={onNewGroup} title="Новая группа"><Icon name="circle-plus" size={20} /></button>
               {editMode ? (
                 <button className="text-btn" onClick={() => { setEditMode(false); setSelected(new Set()); }}>Готово</button>
               ) : (
-                <button className="icon-btn" onClick={() => setEditMode(true)} title="Изменить">✏️</button>
+                <button className="icon-btn" onClick={() => setEditMode(true)} title="Изменить"><Icon name="pencil" size={20} /></button>
               )}
             </div>
           </>

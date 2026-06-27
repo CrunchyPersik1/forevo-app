@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Avatar from './Avatar';
 import PhotoViewer from './PhotoViewer';
+import Icon from './Icon';
 import { formatTime, formatFileSize } from '../utils';
 import { api } from '../api';
 
@@ -98,7 +99,7 @@ export default function MessageBubble({
         )}
 
         <div className={`msg-bubble ${isOwn ? 'own' : ''} ${message.deletedAt ? 'deleted' : ''} ${isPinned ? 'pinned' : ''}`}>
-          {isPinned && <span className="msg-pin-icon">📌</span>}
+            {isPinned && <span className="msg-pin-icon"><Icon name="pin" size={12} /></span>}
           {message.deletedAt ? (
             <span className="msg-deleted">Сообщение удалено</span>
           ) : editing ? (
@@ -106,8 +107,8 @@ export default function MessageBubble({
               <input value={editText} onChange={e => setEditText(e.target.value)} autoFocus
                 onBlur={handleEdit}
                 onKeyDown={e => { if (e.key === 'Enter') handleEdit(); if (e.key === 'Escape') setEditing(false); }} />
-              <button onClick={handleEdit}>✓</button>
-              <button onClick={() => setEditing(false)}>✕</button>
+              <button onClick={handleEdit}><Icon name="check" size={16} /></button>
+              <button onClick={() => setEditing(false)}><Icon name="x" size={16} /></button>
             </div>
           ) : (
             <>
@@ -171,11 +172,11 @@ export default function MessageBubble({
             <button onClick={() => { onForward?.(message); setShowMenu(false); }}>↪️ Переслать</button>
             {onPin && (
               <button onClick={() => { onPin(message); setShowMenu(false); }}>
-                {isPinned ? '📌 Открепить' : '📌 Закрепить'}
+                {isPinned ? <><Icon name="pin" size={14} /> Открепить</> : <><Icon name="pin" size={14} /> Закрепить</>}
               </button>
             )}
             {isOwn && message.type === 'text' && !message.deletedAt && (
-              <button onClick={() => { setEditing(true); setShowMenu(false); }}>✏️ Изменить</button>
+              <button onClick={() => { setEditing(true); setShowMenu(false); }}><Icon name="pencil" size={14} /> Изменить</button>
             )}
             {isOwn && !message.deletedAt && (
               <button className="danger" onClick={() => { onDelete(message.id); setShowMenu(false); }}>🗑 Удалить</button>

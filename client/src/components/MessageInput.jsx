@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import Icon from './Icon';
 
 const EMOJI_CATEGORIES = {
   'Частые': ['😀', '😂', '😍', '🥰', '😎', '🤔', '👍', '❤️', '🔥', '✨', '🎉', '💪', '🙏', '😭', '🥳', '😇'],
@@ -203,7 +204,7 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
             <small>Ответ для {replyTo.senderName}</small>
             <p>{replyTo.content || '📎 Вложение'}</p>
           </div>
-          <button onClick={onCancelReply}>✕</button>
+          <button onClick={onCancelReply}><Icon name="x" size={16} /></button>
         </div>
       )}
 
@@ -244,10 +245,10 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
       )}
 
       <div className="msg-input">
-        <button className="icon-btn" onClick={() => fileRef.current?.click()} title="Файл">📎</button>
+        <button className="icon-btn" onClick={() => fileRef.current?.click()} title="Файл"><Icon name="paperclip" size={20} /></button>
         <input ref={fileRef} type="file" hidden multiple onChange={e => handleFiles(e.target.files)} />
 
-        <button className="icon-btn" onClick={() => mediaRef.current?.click()} title="Фото">📷</button>
+        <button className="icon-btn" onClick={() => mediaRef.current?.click()} title="Фото"><Icon name="camera" size={20} /></button>
         <input ref={mediaRef} type="file" hidden accept="image/*" onChange={e => handleFiles(e.target.files)} />
 
         <textarea
@@ -260,18 +261,18 @@ export default function MessageInput({ onSend, onTyping, replyTo, onCancelReply,
         />
 
         <button className="icon-btn" onClick={() => setShowEmoji(!showEmoji)} title="Эмодзи">
-          {showEmoji ? '✕' : '😊'}
+          {showEmoji ? <Icon name="x" size={20} /> : <Icon name="smile" size={20} />}
         </button>
 
         {text.trim() ? (
-          <button className="send-btn" onClick={handleSend}>➤</button>
+          <button className="send-btn" onClick={handleSend}><Icon name="send" size={18} /></button>
         ) : (
           <button
             className={`send-btn ${recording ? 'recording' : ''}`}
             onClick={recording ? stopRecording : startRecording}
             title={recording ? 'Остановить запись' : 'Нажмите для записи голосового'}
           >
-            {recording ? '🔴' : '🎤'}
+            {recording ? <Icon name="pause" size={18} /> : <Icon name="mic" size={18} />}
           </button>
         )}
       </div>
