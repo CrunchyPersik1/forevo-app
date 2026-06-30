@@ -119,7 +119,7 @@ router.post('/:chatId', upload.array('files', 10), async (req, res) => {
         const otherUser = await db.get('SELECT last_seen FROM users WHERE id = $1', [other.id]);
         if (otherUser?.last_seen && (Date.now() - otherUser.last_seen > 5 * 60 * 1000)) {
           const { sendOfflineMessageEmail } = await import('../services/notifications.js');
-          sendOfflineMessageEmail(other.id, message.senderName, message.senderName, content?.trim().slice(0, 200));
+          sendOfflineMessageEmail(other.id, message.senderName, other.displayName || message.senderName, content?.trim().slice(0, 200));
         }
       }
     }
@@ -394,3 +394,4 @@ function guessType(mime) {
 }
 
 export default router;
+

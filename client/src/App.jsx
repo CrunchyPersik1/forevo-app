@@ -99,7 +99,7 @@ export default function App() {
   }, []);
 
   const requestNotificationPermission = async () => {
-    console.log('[NOTIF] Requesting permission, current:', Notification.permission);
+    console.log('[NOTIF] Requesting permission, current:', typeof Notification !== 'undefined' ? Notification.permission : 'not supported');
     if (!('Notification' in window)) {
       alert('Ваш браузер не поддерживает уведомления. Попробуйте Chrome или Edge.');
       return;
@@ -194,7 +194,7 @@ export default function App() {
       console.log('[NOTIF] Notification API not available');
       return;
     }
-    if (Notification.permission !== 'granted') {
+    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') {
       console.log('[NOTIF] Permission not granted:', Notification.permission);
       return;
     }
@@ -388,7 +388,7 @@ export default function App() {
     };
 
     const onMentionReceived = ({ chatId, messageId, fromUser, content }) => {
-      if (Notification.permission === 'granted') {
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
         new Notification(`${fromUser} упомянул(а) вас`, { body: content, icon: '/favicon.ico' });
       }
     };
@@ -614,7 +614,7 @@ export default function App() {
           activeChat={activeChat}
           onlineUsers={onlineUsers}
           onSelect={handleSelectChat}
-          onNewGroup={() => setShowSearch(true)}
+          onNewGroup={() => setShowGroup(true)}
           onProfile={() => setShowProfile(true)}
           onRequestNotifications={requestNotificationPermission}
           archivedIds={archivedIds.current}
@@ -784,6 +784,20 @@ export default function App() {
           </div>
         </div>
       )}
+      {forwardingMessage && (
+        <ForwardModal
+          chats={chats}
+          user={user}
+          onSelect={handleForwardToChat}
+          onClose={() => setForwardingMessage(null)}
+        />
+      )}
+      <Changelog />
     </div>
   );
 }
+
+
+
+
+

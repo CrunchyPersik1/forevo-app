@@ -28,6 +28,7 @@ export function connectSocket() {
     reconnectionAttempts: 10,
   });
 
+  window.__socket = socket;
   return socket;
 }
 
@@ -39,5 +40,8 @@ export function disconnectSocket() {
 }
 
 export function getSocket() {
+  window.__socket = socket;
   return socket;
 }
+
+
