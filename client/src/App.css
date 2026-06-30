@@ -1208,6 +1208,8 @@
 /* === Nickname === */
 .nickname-gradient { background: linear-gradient(135deg, var(--accent), #e84393); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .nickname-rainbow { background: linear-gradient(90deg, red, orange, yellow, green, blue, violet); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: rainbow-shift 3s linear infinite; background-size: 200% auto; }
+
+.nickname-gold { background: linear-gradient(90deg, #b8860b, #ffd700, #ffec8b, #ffd700, #b8860b, #ffd700, #ffec8b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gold-shift 3s linear infinite; background-size: 200% auto; }
 .mod-badge { margin-right: 4px; font-size: 12px; }
 
 /* === Legal === */
@@ -1290,3 +1292,5 @@
   .profile-form input, .profile-form textarea { font-size: var(--font-size-md); }
   .photo-viewer-close { top: max(var(--sp-4), env(safe-area-inset-top)); right: var(--sp-4); }
 }
+
+

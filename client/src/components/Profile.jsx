@@ -358,3 +358,4 @@ export default function Profile({ user, onSave, onLogout, onClose, theme, onSetT
 
   return null;
 }
+

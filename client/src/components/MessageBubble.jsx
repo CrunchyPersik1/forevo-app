@@ -75,7 +75,7 @@ export default function MessageBubble({
         {(showSender || showColoredName) && !isOwn && (
           <button
             className={`msg-sender ${senderUser?.nicknameColor === 'rainbow' ? 'nickname-rainbow' : senderUser?.nicknameColor === 'gradient' ? 'nickname-gradient' : ''}`}
-            style={senderUser?.nicknameColor && senderUser.nicknameColor !== 'rainbow' && senderUser.nicknameColor !== 'gradient' ? { color: senderUser.nicknameColor } : undefined}
+            style={senderUser?.nicknameColor && senderUser.nicknameColor !== 'rainbow' && senderUser.nicknameColor !== 'gradient' && senderUser.nicknameColor !== 'gold' ? { color: senderUser.nicknameColor } : undefined}
             onClick={() => onOpenProfile?.(message.senderId)}
           >
             {senderUser?.isModerator && <span className="mod-badge">⭐</span>}
@@ -194,3 +194,4 @@ export default function MessageBubble({
     </div>
   );
 }
+
