@@ -129,8 +129,8 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
               <div className="chat-item-info">
                 <div className="chat-item-top">
                   <span
-                    className={'chat-item-name ' + (other?.nicknameColor === 'rainbow' ? 'nickname-rainbow' : other?.nicknameColor === 'gradient' ? 'nickname-gradient' : '')}
-                    style={other?.nicknameColor && other.nicknameColor !== 'rainbow' && other.nicknameColor !== 'gradient' ? { color: other.nicknameColor } : undefined}
+                    className={'chat-item-name ' + (other?.nicknameColor === 'rainbow' ? 'nickname-rainbow' : other?.nicknameColor === 'gradient' ? 'nickname-gradient' : other?.nicknameColor === 'gold' ? 'nickname-gold' : '')}
+                    style={other?.nicknameColor && other.nicknameColor !== 'rainbow' && other.nicknameColor !== 'gradient' && other.nicknameColor !== 'gold' ? { color: other.nicknameColor } : undefined}
                   >
                     {(other?.isModerator ? '⭐ ' : '') + (chat.pinned ? '📌 ' : '') + chat.name}
                   </span>
@@ -195,3 +195,4 @@ export default function ChatList({ chats, activeChat, onlineUsers, onSelect, onN
     </div>
   );
 }
+
